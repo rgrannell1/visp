@@ -1,0 +1,17 @@
+
+; oh hai
+
+anIdentifier(a, b)
+fn(a, b)
+fn(a, b(c, d, "this is a string")) ; hai
+a `+` b
+10.0 `+` 2
+a `^` -10.00000
+a `fn` b(
+  c,
+  d,
+  e("a")
+)
+
+#true
+#false
