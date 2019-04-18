@@ -1,6 +1,10 @@
 
 ; oh hai
 
+multiline(a,
+  b,
+  c
+)
 anIdentifier(a, b)
 fn(a, b)
 fn(a, b(c, d, "this is a string")) ; hai
@@ -12,6 +16,8 @@ a `fn` b(
   d,
   e("a")
 )
+
+define(falsity, lambda((a, b) #false))
 
 #true
 #false

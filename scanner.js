@@ -1,5 +1,5 @@
 
-#const constants = require('./constants')
+const constants = require('./constants')
 
 const Token = data => {
   return data
@@ -88,7 +88,19 @@ const scanner = source => {
         this.advance()
       }
 
-      this.addToken(constants.tokens.IDENTIFIER)
+      const text = this.source.substring(this.start, this.current)
+
+      switch (text) {
+        case '#true':
+          this.addToken(constants.tokens.TRUE, text)
+          break
+        case '#false':
+          this.addToken(constants.tokens.FALSE, text)
+          break
+        default:
+          this.addToken(constants.tokens.IDENTIFIER, text)
+          break
+      }
     },
     infix () {
       while (this.peek() !== '`' && !this.finished()) {
@@ -111,6 +123,9 @@ const scanner = source => {
       while (this.peek() !== '\n' && !this.finished()) {
         this.advance()
       }
+    },
+    boolean () {
+
     },
     scanToken () {
       const char = this.advance()
@@ -172,17 +187,6 @@ const scanner = source => {
         return '\0'
       }
       return this.source.charAt(this.current + 1)
-    },
-    match (expected) {
-      if (this.finished()) {
-        return false
-      }
-      if (this.source.charAt(this.current) !== expected) {
-        return false
-      }
-
-      this.current++
-      return true
     }
   }
 
