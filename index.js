@@ -54,7 +54,6 @@ const parser = tokens => {
   const parser = {
 
   }
-console.log(tokens)
 
   return parser.parse()
 }
