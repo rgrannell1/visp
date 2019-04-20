@@ -11,6 +11,12 @@ const constants = {
     INFIX: 'INFIX',
     TRUE: 'TRUE',
     FALSE: 'FALSE'
+  },
+  charSets: {
+    numbers: '0123456789'.split('')
+  },
+  regexp: {
+    number: /^[+-]{0,1}[0-9]+[.][0-9]+/
   }
 }
 
