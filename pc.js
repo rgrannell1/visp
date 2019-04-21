@@ -3,8 +3,8 @@ const pc = {}
 
 const data = {}
 
-pc.failure = (expected, actual) => {
-  return {isFailure: true, expected, actual}
+pc.failure = (expected, actual, fnName) => {
+  return {isFailure: true, expected, actual, fnName}
 }
 
 pc.success = (data, rest) => {
@@ -17,7 +17,7 @@ pc.run = (parser, input) => {
     throw new SyntaxError(`Parser didn't return a result.`)
   }
   if (result.isFailure) {
-    throw new SyntaxError(`Parse error. Expected ${result.expected}, got ${result.actual}`)
+    throw new SyntaxError(`Parse error. Expected ${result.expected} got ${result.actual}`)
   } else {
     return result
   }
@@ -70,21 +70,13 @@ pc.apply = (fn, parsers) => {
   }
 }
 
-pc.label = (parser, expected) => {
-  return input => {
-    return result.isFailure
-      ? pc.failure(expected, result.actual)
-      : result
-  }
-}
-
 pc.collect = parsers => {
   return pc.apply((...results) => results, parsers)
 }
 
 pc.lexeme = junk => {
   return parser => {
-    return pc.apply(data => data, [parser, junk])
+    return pc.apply((junk0, data, junk1) => data, [junk, parser, junk])
   }
 }
 
@@ -101,6 +93,29 @@ pc.oneOf = parsers => {
     }
 
     return pc.failure('oneOf', input)
+  }
+}
+
+pc.many = parser => {
+  return input => {
+    const acc = []
+    let result = {isFailure: false, rest: input}
+
+    let wasMatched = false
+
+    while (!result.isFailure) {
+      result = parser(result.rest)
+
+      if (!result.isFailure) {
+        acc.push(result.data)
+      } else {
+        wasMatched = true
+      }
+    }
+
+    return wasMatched
+      ? pc.success(acc, '')
+      : pc.failed('at least one match', 'no matches')
   }
 }
 

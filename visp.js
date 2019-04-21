@@ -114,7 +114,7 @@ visp.eof = input => {
 }
 
 {
-  const whitespace = new Set([' ', '  ', ','])
+  const whitespace = new Set([' ', '  ', ',', '\n'])
 
   visp.whitespace = input => {
     if (input === undefined) {
@@ -132,17 +132,15 @@ visp.eof = input => {
 }
 
 visp.expression = input => {
-
-  const individual = pc.oneOf([
+  const part = pc.oneOf([
     visp.boolean,
     visp.string,
     visp.number,
     visp.identifier
   ])
 
-  const parse = pc.lexeme(visp.whitespace)(individual)
-  return parse(input)
+  const whitespaceIgnore = pc.lexeme(visp.whitespace)(part)
+  return pc.many(whitespaceIgnore)(input)
 }
-
 
 module.exports = visp
