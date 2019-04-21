@@ -26,8 +26,24 @@ demand.error = (thunk, ctr) => {
   inspectError(thunk, isError(ctr))
 }
 
-demand.error(() => pg.run(visp.integer, '.10'), SyntaxError)
+demand.data = (thunk, data) => {
+  const actual = thunk().data
+  if (actual !== data) {
+    throw new Error(`expected ${data}, got ${actual}`)
+  }
+}
 
-console.log(pg.run(visp.integer, '10.01 asdasdasdasdasdasd'))
+demand.error(() => pg.run(visp.number, '.10'), SyntaxError)
+demand.error(() => pg.run(visp.number, '10.10.10'), SyntaxError)
+demand.error(() => pg.run(visp.boolean, '#nope'), SyntaxError)
+demand.error(() => pg.run(visp.string, '"unterminated '), SyntaxError)
+demand.error(() => pg.run(visp.identifier, '#'), SyntaxError)
 
-console.log('passed!')
+demand.data(() => pg.run(visp.expression, '#t'), '#t')
+demand.data(() => pg.run(visp.expression, '#f'), '#f')
+demand.data(() => pg.run(visp.expression, '$sym'), '$sym')
+
+let cd = pg.run(visp.identifier, '$$')
+
+console.log(cd)
+console.log('passed.')
