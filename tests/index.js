@@ -1,7 +1,7 @@
 
 const {expect} = require('chai')
 
-const pg = require('../pg')
+const pc = require('../pc')
 const visp = require('../visp')
 
 const demand = {}
@@ -33,17 +33,23 @@ demand.data = (thunk, data) => {
   }
 }
 
-demand.error(() => pg.run(visp.number, '.10'), SyntaxError)
-demand.error(() => pg.run(visp.number, '10.10.10'), SyntaxError)
-demand.error(() => pg.run(visp.boolean, '#nope'), SyntaxError)
-demand.error(() => pg.run(visp.string, '"unterminated '), SyntaxError)
-demand.error(() => pg.run(visp.identifier, '#'), SyntaxError)
+demand.error(() => pc.run(visp.number, '.10'), SyntaxError)
+demand.error(() => pc.run(visp.number, '10.10.10'), SyntaxError)
+demand.error(() => pc.run(visp.boolean, '#nope'), SyntaxError)
+demand.error(() => pc.run(visp.string, '"unterminated '), SyntaxError)
+demand.error(() => pc.run(visp.identifier, '#'), SyntaxError)
 
-demand.data(() => pg.run(visp.expression, '#t'), '#t')
-demand.data(() => pg.run(visp.expression, '#f'), '#f')
-demand.data(() => pg.run(visp.expression, '$sym'), '$sym')
+demand.data(() => pc.run(visp.expression, '#t'), '#t')
+demand.data(() => pc.run(visp.expression, '#f'), '#f')
+demand.data(() => pc.run(visp.expression, '$sym'), '$sym')
+demand.data(() => pc.run(visp.expression, '"a string"'), '"a string"')
 
-let cd = pg.run(visp.identifier, '$$')
+demand.data(() => {
+  const str = '  "a string" "a string" +10.1 #f'
+  return pc.run(visp.expression, str)
+}, 'a')
+
+let cd = pc.run(visp.identifier, '$$')
 
 console.log(cd)
 console.log('passed.')

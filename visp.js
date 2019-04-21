@@ -1,5 +1,5 @@
 
-const pg = require('./pg')
+const pc = require('./pc')
 const constants = require('./constants')
 
 /*
@@ -32,9 +32,9 @@ visp.number = input => {
 
   if (matches) {
     let match = matches[0]
-    return pg.success(match, input.slice(match.length))
+    return pc.success(match, input.slice(match.length))
   } else {
-    return pg.failure('number', input)
+    return pc.failure('number', input)
   }
 }
 
@@ -42,27 +42,27 @@ visp.boolean = input => {
   const candidate = input.slice(0, 2)
 
   if (candidate === '#f' || candidate === '#t') {
-    return pg.success(candidate, input.slice(2))
+    return pc.success(candidate, input.slice(2))
   } else {
-    return pg.failure('#t or #f', candidate)
+    return pc.failure('#t or #f', candidate)
   }
 }
 
 visp.string = input => {
   if (input.charAt(0) !== '"') {
-    return pg.failure('"', input.charAt(0))
+    return pc.failure('"', input.charAt(0))
   }
 
   let included = 1
   while (input.charAt(included) !== '"') {
     if (included === input.length) {
-      return pg.failure('terminating "', '"')
+      return pc.failure('terminating "', '"')
     }
 
     ++included
   }
 
-  return pg.success(input.slice(0, included + 1), input.slice(included + 1))
+  return pc.success(input.slice(0, included + 1), input.slice(included + 1))
 }
 
 {
@@ -95,7 +95,7 @@ visp.string = input => {
     const lead = input[0]
 
     if (!isValidHeadChar(lead)) {
-      return pg.failure('valid head character', lead)
+      return pc.failure('valid head character', lead)
     }
 
     let included = 1
@@ -103,71 +103,46 @@ visp.string = input => {
       included++
     }
 
-    return pg.success(input.slice(0, included), input.slice(included))
+    return pc.success(input.slice(0, included), input.slice(included))
   }
 }
 
 visp.eof = input => {
   return input.length === 0
-    ? pg.success(null, input)
-    : pg.failure('eof', input)
+    ? pc.success(null, input)
+    : pc.failure('eof', input)
+}
+
+{
+  const whitespace = new Set([' ', '  ', ','])
+
+  visp.whitespace = input => {
+    if (input === undefined) {
+      throw new TypeError('undefined value supplied.')
+    }
+
+    let included = 0
+
+    while (whitespace.has(input.charAt(included)) && included < input.length - 1) {
+      included++
+    }
+
+    return pc.success(input.slice(0, included), input.slice(included))
+  }
 }
 
 visp.expression = input => {
-  return visp.oneOf([
+
+  const individual = pc.oneOf([
     visp.boolean,
     visp.string,
     visp.number,
     visp.identifier
-  ])(input)
+  ])
+
+  const parse = pc.lexeme(visp.whitespace)(individual)
+  return parse(input)
 }
 
-visp.map = (fn, parser) => {
-  return (input) => {
-    const result = parser(input)
-    return result.isFailure
-      ? result
-      : pg.success(fn(result.data), result.rest)
-  }
-}
-
-visp.apply = (fn, parsers) => {
-  return input => {
-    const acc = []
-    let current = input
-
-    for (const parser of parsers) {
-      const result = parser(current)
-      if (result.isFailure) {
-        return result
-      }
-
-      acc.push(result.data)
-      current = input.rest
-    }
-
-    return success(fn(...acc), current)
-  }
-}
-
-visp.collect = parsers => {
-  return visp.apply((...results) => results, parsers)
-}
-
-visp.oneOf = parsers => {
-  return input => {
-    for (const parser of parsers) {
-      const result = parser(input)
-
-      if (result.isFailure) {
-        continue
-      }
-
-      return result
-    }
-
-    return pg.failure('oneOf', input)
-  }
-}
 
 module.exports = visp
