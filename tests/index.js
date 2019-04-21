@@ -29,6 +29,8 @@ demand.error = (thunk, ctr) => {
 demand.data = (thunk, data) => {
   const actual = thunk().data
 
+
+console.log(actual)
   expect(actual).to.deep.equal(data)
 }
 
@@ -42,13 +44,11 @@ demand.data(() => pc.run(visp.expression, '#t'), ['#t'])
 demand.data(() => pc.run(visp.expression, '#f'), ['#f'])
 demand.data(() => pc.run(visp.expression, '$sym'), ['$sym'])
 demand.data(() => pc.run(visp.expression, '"a string"'), ['"a string"'])
+demand.data(() => pc.run(visp.call, 'my-fn("a", 1, #t)'), ['"a string"'])
 
 demand.data(() => pc.run(visp.expression, '  "a string" '), ['"a string"'])
 demand.data(() => pc.run(visp.expression, '  \n#t '), ['#t'])
 
-demand.data(() => pc.run(visp.expression, '  "a string" "a string" +10.1 #f'), [ '"a string"', '"a string"', '+10.1', '#f' ])
+demand.data(() => pc.run(visp.expression, '  "a string" "a string" +10.1 #f my-fn("a", 1, b)'), [ '"a string"', '"a string"', '+10.1', '#f' ])
 
-let cd = pc.run(visp.identifier, '$$')
-
-console.log(cd)
 console.log('passed.')

@@ -133,6 +133,7 @@ visp.eof = input => {
 
 visp.expression = input => {
   const part = pc.oneOf([
+    visp.call,
     visp.boolean,
     visp.string,
     visp.number,
@@ -141,6 +142,19 @@ visp.expression = input => {
 
   const whitespaceIgnore = pc.lexeme(visp.whitespace)(part)
   return pc.many(whitespaceIgnore)(input)
+}
+
+visp.call = input => {
+  const call = pc.collect([
+    visp.identifier,
+    pc.char('('),
+    visp.expression,
+    pc.char(')')
+  ])
+
+  const trimmed = pc.lexeme(visp.whitespace)(call)
+
+  return trimmed(input)
 }
 
 module.exports = visp

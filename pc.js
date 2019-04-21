@@ -96,6 +96,15 @@ pc.oneOf = parsers => {
   }
 }
 
+pc.char = char => {
+  return input => {
+    return input.charAt(0) == char
+      ? pc.success(char, input.slice(1))
+      : pc.failure(char, input.charAt(0))
+
+  }
+}
+
 pc.many = parser => {
   return input => {
     const acc = []
