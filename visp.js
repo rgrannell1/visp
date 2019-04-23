@@ -27,7 +27,7 @@ const constants = require('./constants')
 
 const visp = {}
 
-visp.number = input => {
+visp.number = function number (input) {
   const matches = constants.regexp.number.exec(input)
 
   if (matches) {
@@ -38,7 +38,7 @@ visp.number = input => {
   }
 }
 
-visp.boolean = input => {
+visp.boolean = function boolean (input) {
   const candidate = input.slice(0, 2)
 
   if (candidate === '#f' || candidate === '#t') {
@@ -48,7 +48,7 @@ visp.boolean = input => {
   }
 }
 
-visp.string = input => {
+visp.string = function string (input) {
   if (input.charAt(0) !== '"') {
     return pc.failure('"', input.charAt(0))
   }
@@ -91,7 +91,7 @@ visp.string = input => {
     return isSpecial || isNormal
   }
 
-  visp.identifier = input => {
+  visp.identifier = function identifier (input) {
     const lead = input[0]
 
     if (!isValidHeadChar(lead)) {
@@ -107,23 +107,23 @@ visp.string = input => {
   }
 }
 
-visp.eof = input => {
+visp.eof = function eof (input) {
   return input.length === 0
     ? pc.success(null, input)
     : pc.failure('eof', input)
 }
 
 {
-  const whitespace = new Set([' ', '  ', ',', '\n'])
+  const spaceChars = new Set([' ', '  ', ',', '\n'])
 
-  visp.whitespace = input => {
+  visp.whitespace = function whitespace (input) {
     if (input === undefined) {
       throw new TypeError('undefined value supplied.')
     }
 
     let included = 0
 
-    while (whitespace.has(input.charAt(included)) && included < input.length - 1) {
+    while (spaceChars.has(input.charAt(included)) && included < input.length - 1) {
       included++
     }
 
@@ -131,7 +131,7 @@ visp.eof = input => {
   }
 }
 
-visp.expression = input => {
+visp.expression = function expression (input) {
   const part = pc.oneOf([
     visp.call,
     visp.boolean,
@@ -140,11 +140,11 @@ visp.expression = input => {
     visp.identifier
   ])
 
-  const whitespaceIgnore = pc.lexeme(visp.whitespace)(part)
+  const whitespaceIgnore = pc.extractFrom(visp.whitespace)(part)
   return pc.many(whitespaceIgnore)(input)
 }
 
-visp.call = input => {
+visp.call = function call (input) {
   const call = pc.collect([
     visp.identifier,
     pc.char('('),
@@ -152,7 +152,7 @@ visp.call = input => {
     pc.char(')')
   ])
 
-  const trimmed = pc.lexeme(visp.whitespace)(call)
+  const trimmed = pc.extractFrom(visp.whitespace)(call)
 
   return trimmed(input)
 }

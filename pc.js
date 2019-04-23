@@ -11,6 +11,16 @@ pc.success = (data, rest) => {
   return {isFailure: false, data, rest}
 }
 
+pc.givenLength = (parser, min = 1) => {
+  return input => {
+    if (input.length < min) {
+      return pc.failure(`at least ${min} characters`, input.length)
+    } else {
+      return parser(input)
+    }
+  }
+}
+
 pc.run = (parser, input) => {
   const result = parser(input)
   if (!result) {
@@ -74,7 +84,7 @@ pc.collect = parsers => {
   return pc.apply((...results) => results, parsers)
 }
 
-pc.lexeme = junk => {
+pc.extractFrom = junk => {
   return parser => {
     return pc.apply((junk0, data, junk1) => data, [junk, parser, junk])
   }
@@ -92,18 +102,19 @@ pc.oneOf = parsers => {
       return result
     }
 
-    return pc.failure('oneOf', input)
+    return pc.failure(`oneOf [${parsers.map(parser => parser.name)}]`, input)
   }
 }
 
-pc.char = char => {
+pc.char = pc.givenLength(char => {
   return input => {
-    return input.charAt(0) == char
+    const first = input.charAt(0)
+    return first == char
       ? pc.success(char, input.slice(1))
-      : pc.failure(char, input.charAt(0))
+      : pc.failure(`the character ${char}`, `${first} (${first})`)
 
   }
-}
+}, 1)
 
 pc.many = parser => {
   return input => {

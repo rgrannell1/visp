@@ -44,7 +44,7 @@ demand.data(() => pc.run(visp.expression, '#t'), ['#t'])
 demand.data(() => pc.run(visp.expression, '#f'), ['#f'])
 demand.data(() => pc.run(visp.expression, '$sym'), ['$sym'])
 demand.data(() => pc.run(visp.expression, '"a string"'), ['"a string"'])
-demand.data(() => pc.run(visp.call, 'my-fn("a", 1, #t)'), ['"a string"'])
+demand.data(() => pc.run(visp.call, 'somefn("a", 1, #t)'), ['"a string"'])
 
 demand.data(() => pc.run(visp.expression, '  "a string" '), ['"a string"'])
 demand.data(() => pc.run(visp.expression, '  \n#t '), ['#t'])
