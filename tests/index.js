@@ -47,6 +47,12 @@ demand.data = (thunk, data) => {
   }
 }
 
+demand.cases = (fnName, pairs) => {
+ for (const [str, value] of pairs) {
+    demand.data(() => pc.run(visp[fnName], str), value)
+  }
+}
+
 suite('visp.number', () => {
   demand.error(() => pc.run(visp.number, '.10'), SyntaxError)
   demand.error(() => pc.run(visp.number, '10.10.10'), SyntaxError)
@@ -67,61 +73,68 @@ suite('visp.number', () => {
 suite('visp.boolean', () => {
   demand.error(() => pc.run(visp.boolean, '#nope'), SyntaxError)
 
-  const pairs = [
-    ['#t', true],
-    ['#f', false]
-  ]
-
-  for (const [str, value] of pairs) {
-    demand.data(() => pc.run(visp.boolean, str), {type: 'boolean', value})
-  }
+  demand.cases('boolean', [
+    ['#t', {type: 'boolean', value: true}],
+    ['#f', {type: 'boolean', value: false}]
+  ])
 })
 
 suite('visp.string', () => {
   demand.error(() => pc.run(visp.string, '"unterminated '), SyntaxError)
+
+  demand.cases('string', [
+    ['"a string"', {type: 'string', value: 'a string'}]
+    // -- todo add inner string support.
+  ])
 })
 
 suite('visp.identifier', () => {
   demand.error(() => pc.run(visp.identifier, '#'), SyntaxError)
 
-  const pairs = [
-    'define!',
-    '$vau',
-    'private',
-    'my-fn-is-dashed'
-  ]
-
-  for (const value of pairs) {
-    demand.data(() => pc.run(visp.identifier, value), {type: 'identifier', value})
-  }
+  demand.cases('identifier', [
+    ['define!', {type: 'identifier', value: 'define!'}],
+    ['$vau', {type: 'identifier', value: '$vau'}],
+    ['private', {type: 'identifier', value: 'private'}],
+    ['my-fn-is-dashed', {type: 'identifier', value: 'my-fn-is-dashed'}]
+  ])
 })
 
 suite('visp.call', () => {
-  demand.data(() => pc.run(visp.call, 'some-fn!()'), {
-    type: 'call',
-    fn: {
-      type: 'identifier', value: 'some-fn!'
-    },
-    arguments: []
-  })
-  demand.data(() => pc.run(visp.call, '$somefn!("a" 1 #t)'), {
-    type:'call',
-    fn: {
-      type: 'identifier', value: '$somefn!'
-    },
-    arguments: [
-      { type: 'string', value: 'a' },
-      { type: 'number', value: 1 },
-      { type: 'boolean', value: true }
+  const pairs = [
+    [
+      'some-fn!()',
+      {
+          type: 'call',
+          fn: {type: 'identifier', value: 'some-fn!'},
+          arguments: []
+        }
+    ],
+    [
+      '$somefn!("a" 1 #t)',
+      {
+        type:'call',
+        fn: {
+          type: 'identifier', value: '$somefn!'
+        },
+        arguments: [
+          { type: 'string', value: 'a' },
+          { type: 'number', value: 1 },
+          { type: 'boolean', value: true }
+        ]
+      }
     ]
-  })
+  ]
+
+  demand.cases('call', pairs)
 })
+
+/*
 
 suite('visp.list', () => {
   const list = {type: 'identifier', value: 'list'}
 
   const pairs = [
-    ['()', {type: 'call', fn: list, arguments: []}]
+    ['()', {type: 'call', fn: list, arguments: [  ]}],
   ]
 
   for (const [str, value] of pairs) {
@@ -129,20 +142,5 @@ suite('visp.list', () => {
   }
 })
 
-/*
-
-suite('visp.expression', () => {
-  demand.data(() => pc.run(visp.expression, '#t'), ['#t'])
-  demand.data(() => pc.run(visp.expression, '#f'), ['#f'])
-  demand.data(() => pc.run(visp.expression, '$sym'), ['$sym'])
-  demand.data(() => pc.run(visp.expression, '"a string"'), ['"a string"'])
-
-  demand.data(() => pc.run(visp.expression, '  "a string" '), ['"a string"'])
-  demand.data(() => pc.run(visp.expression, '  \n#t '), ['#t'])
-
-  demand.data(() => pc.run(visp.expression, '  "a string" "a string" +10.1 #f my-fn("a", 1, b)'), [ '"a string"', '"a string"', '+10.1', '#f' ])
-})
 */
-
-
-console.log('passed.')
+console.log(chalk.green('test-cases passed.'))
