@@ -138,6 +138,13 @@ suite('visp.list', () => {
       {value: 2, type: 'number'},
       {value: 3, type: 'number'},
     ]}],
+    ['(())', {type: 'call', fn: list, arguments: [
+      {
+        type: "call",
+        fn: list,
+        arguments: []
+      }
+    ]}]
   ]
 
   for (const [str, value] of pairs) {

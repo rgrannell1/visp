@@ -1,5 +1,7 @@
 # visp
 
+> Programming languages should be designed not by piling feature on top of feature, but by removing the weaknesses and restrictions that make additional features appear necessary
+
 Visp is a toy-language built for a few purposes:
 
 - I'd like to build a language from scratch
@@ -23,13 +25,10 @@ So far, I've implemented:
 It looks like this.
 
 ```js
-
-; this is a comment
-
 define!(my-hash, hash(
   (monday  0)
   (tuesday 1)
 ))
 
-define!(falsity, lambda(() #false))
+define!(falsity, $lambda(() #false))
 ```
