@@ -17,11 +17,10 @@ I'd like it to compile to / be interpreted in JS for practicality.
 
 So far, I've implemented:
 
-- a tokeniser
-- ~~a parser~~
+- a parser
 - ~~an evaluator~~
 - ~~a standard library~~
-- ~~node library wrappers
+- ~~node library wrappers~~
 
 It looks like this.
 

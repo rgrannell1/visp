@@ -6,7 +6,8 @@
   "author": "rgrannell1 <r.grannell2@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "chai": "4.2.0"
+    "chai": "4.2.0",
+    "chalk": "2.4.2"
   },
   "scripts": {
     "test:watch": "ag -l | entr node tests/index.js"

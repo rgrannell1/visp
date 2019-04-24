@@ -16,7 +16,7 @@ const constants = {
     numbers: '0123456789'.split('')
   },
   regexp: {
-    number: /^[+-]{0,1}[0-9]+[.][0-9]+/
+    number: /^[+-]{0,1}[0-9]+([.][0-9]+)*/
   }
 }
 

@@ -1,5 +1,6 @@
 
 const pc = require('./pc')
+const ast = require('./ast')
 const constants = require('./constants')
 
 /*
@@ -25,22 +26,6 @@ const constants = require('./constants')
 
  */
 
-const ast = {}
-
-ast.call = data => {
-  const [fn, lhb, args, rhb] = data
-  const final = {
-    type: 'call',
-    fn,
-    arguments: args
-  }
-
-  console.log(JSON.stringify(final))
-  console.log('+++')
-
-  return final
-}
-
 const visp = {}
 
 visp.number = function number (input) {
@@ -48,7 +33,7 @@ visp.number = function number (input) {
 
   if (matches) {
     let match = matches[0]
-    return pc.success(match, input.slice(match.length))
+    return pc.success(ast.number(match), input.slice(match.length))
   } else {
     return pc.failure('number', input)
   }
@@ -58,7 +43,7 @@ visp.boolean = function boolean (input) {
   const candidate = input.slice(0, 2)
 
   if (candidate === '#f' || candidate === '#t') {
-    return pc.success(candidate, input.slice(2))
+    return pc.success(ast.boolean(candidate), input.slice(2))
   } else {
     return pc.failure('#t or #f', candidate)
   }
@@ -78,7 +63,7 @@ visp.string = function string (input) {
     ++included
   }
 
-  return pc.success(input.slice(0, included + 1), input.slice(included + 1))
+  return pc.success(ast.string(input.slice(0, included + 1)), input.slice(included + 1))
 }
 
 {
@@ -120,7 +105,7 @@ visp.string = function string (input) {
       included++
     }
 
-    return pc.success(input.slice(0, included), input.slice(included))
+    return pc.success(ast.identifier(input.slice(0, included)), input.slice(included))
   }
 }
 
@@ -151,6 +136,7 @@ visp.eof = function eof (input) {
 visp.expression = function expression (input) {
   const part = pc.oneOf([
     visp.call,
+    visp.list,
     visp.boolean,
     visp.string,
     visp.number,
@@ -159,6 +145,16 @@ visp.expression = function expression (input) {
 
   const whitespaceIgnore = pc.extractFrom(visp.whitespace)(part)
   return pc.many(whitespaceIgnore)(input)
+}
+
+visp.list = function list (input) {
+  const listParser = pc.extractFrom(visp.whitespace)(pc.collect([
+    pc.char('('),
+    visp.expression,
+    pc.char(')')
+  ]))
+
+  return pc.map(ast.list, listParser)(input)
 }
 
 visp.call = function call (input) {
