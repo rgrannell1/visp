@@ -128,13 +128,16 @@ suite('visp.call', () => {
   demand.cases('call', pairs)
 })
 
-/*
-
 suite('visp.list', () => {
   const list = {type: 'identifier', value: 'list'}
 
   const pairs = [
     ['()', {type: 'call', fn: list, arguments: [  ]}],
+    ['(1 2 3)', {type: 'call', fn: list, arguments: [
+      {value: 1, type: 'number'},
+      {value: 2, type: 'number'},
+      {value: 3, type: 'number'},
+    ]}],
   ]
 
   for (const [str, value] of pairs) {
@@ -142,5 +145,4 @@ suite('visp.list', () => {
   }
 })
 
-*/
 console.log(chalk.green('test-cases passed.'))

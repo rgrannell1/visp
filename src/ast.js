@@ -42,7 +42,7 @@ ast.call = data => {
 }
 
 ast.list = data => {
-  const [fn, lhb, args, rhb] = data
+  const [lhb, args, rhb] = data
 
   const final = {
     type: 'call',
