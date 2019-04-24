@@ -32,3 +32,14 @@ define!(my-hash, hash(
 
 define!(falsity, $lambda(() #false))
 ```
+
+## Standard Library
+
+- `boolean?`
+- `not?`
+- `and?`
+- `or?`
+- `$and?`
+- `$or?`
+- `$eq?`
+- `$equal?`

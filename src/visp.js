@@ -26,9 +26,11 @@ const constants = require('./constants')
 
  */
 
-const visp = {}
+const visp = {
+  parser: {}
+}
 
-visp.number = function number (input) {
+visp.parser.number = function number (input) {
   const matches = constants.regexp.number.exec(input)
 
   if (matches) {
@@ -39,7 +41,7 @@ visp.number = function number (input) {
   }
 }
 
-visp.boolean = function boolean (input) {
+visp.parser.boolean = function boolean (input) {
   const candidate = input.slice(0, 2)
 
   if (candidate === '#f' || candidate === '#t') {
@@ -49,7 +51,7 @@ visp.boolean = function boolean (input) {
   }
 }
 
-visp.string = function string (input) {
+visp.parser.string = function string (input) {
   if (input.charAt(0) !== '"') {
     return pc.failure('"', input.charAt(0))
   }
@@ -93,7 +95,7 @@ visp.string = function string (input) {
     return isSpecial || isNormal
   }
 
-  visp.identifier = function identifier (input) {
+  visp.parser.identifier = function identifier (input) {
     const lead = input[0]
 
     if (!isValidHeadChar(lead)) {
@@ -109,7 +111,7 @@ visp.string = function string (input) {
   }
 }
 
-visp.eof = function eof (input) {
+visp.parser.eof = function eof (input) {
   return input.length === 0
     ? pc.success(null, input)
     : pc.failure('eof', input)
@@ -118,7 +120,7 @@ visp.eof = function eof (input) {
 {
   const spaceChars = new Set([' ', '  ', ',', '\n'])
 
-  visp.whitespace = function whitespace (input) {
+  visp.parser.whitespace = function whitespace (input) {
     if (input === undefined) {
       throw new TypeError('undefined value supplied.')
     }
@@ -133,39 +135,43 @@ visp.eof = function eof (input) {
   }
 }
 
-visp.expression = function expression (input) {
+visp.parser.expression = function expression (input) {
   const part = pc.oneOf([
-    visp.call,
-    visp.list,
-    visp.boolean,
-    visp.string,
-    visp.number,
-    visp.identifier
+    visp.parser.call,
+    visp.parser.list,
+    visp.parser.boolean,
+    visp.parser.string,
+    visp.parser.number,
+    visp.parser.identifier
   ])
 
-  const whitespaceIgnore = pc.extractFrom(visp.whitespace)(part)
+  const whitespaceIgnore = pc.extractFrom(visp.parser.whitespace)(part)
   return pc.many(whitespaceIgnore)(input)
 }
 
-visp.list = function list (input) {
-  const listParser = pc.extractFrom(visp.whitespace)(pc.collect([
+visp.parser.list = function list (input) {
+  const listParser = pc.extractFrom(visp.parser.whitespace)(pc.collect([
     pc.char('('),
-    visp.expression,
+    visp.parser.expression,
     pc.char(')')
   ]))
 
   return pc.map(ast.list, listParser)(input)
 }
 
-visp.call = function call (input) {
-  const callParser = pc.extractFrom(visp.whitespace)(pc.collect([
-    visp.identifier,
+visp.parser.call = function call (input) {
+  const callParser = pc.extractFrom(visp.parser.whitespace)(pc.collect([
+    visp.parser.identifier,
     pc.char('('),
-    visp.expression,
+    visp.parser.expression,
     pc.char(')')
   ]))
 
   return pc.map(ast.call, callParser)(input)
+}
+
+visp.evaluate = expr => {
+  // -- todo
 }
 
 module.exports = visp

@@ -49,13 +49,13 @@ demand.data = (thunk, data) => {
 
 demand.cases = (fnName, pairs) => {
  for (const [str, value] of pairs) {
-    demand.data(() => pc.run(visp[fnName], str), value)
+    demand.data(() => pc.run(visp.parser[fnName], str), value)
   }
 }
 
-suite('visp.number', () => {
-  demand.error(() => pc.run(visp.number, '.10'), SyntaxError)
-  demand.error(() => pc.run(visp.number, '10.10.10'), SyntaxError)
+suite('visp.parser.number', () => {
+  demand.error(() => pc.run(visp.parser.number, '.10'), SyntaxError)
+  demand.error(() => pc.run(visp.parser.number, '10.10.10'), SyntaxError)
 
   const pairs = [
     ['+10.01', 10.01],
@@ -66,12 +66,12 @@ suite('visp.number', () => {
   ]
 
   for (const [str, value] of pairs) {
-    demand.data(() => pc.run(visp.number, str), {type: 'number', value})
+    demand.data(() => pc.run(visp.parser.number, str), {type: 'number', value})
   }
 })
 
-suite('visp.boolean', () => {
-  demand.error(() => pc.run(visp.boolean, '#nope'), SyntaxError)
+suite('visp.parser.boolean', () => {
+  demand.error(() => pc.run(visp.parser.boolean, '#nope'), SyntaxError)
 
   demand.cases('boolean', [
     ['#t', {type: 'boolean', value: true}],
@@ -79,8 +79,8 @@ suite('visp.boolean', () => {
   ])
 })
 
-suite('visp.string', () => {
-  demand.error(() => pc.run(visp.string, '"unterminated '), SyntaxError)
+suite('visp.parser.string', () => {
+  demand.error(() => pc.run(visp.parser.string, '"unterminated '), SyntaxError)
 
   demand.cases('string', [
     ['"a string"', {type: 'string', value: 'a string'}]
@@ -88,8 +88,8 @@ suite('visp.string', () => {
   ])
 })
 
-suite('visp.identifier', () => {
-  demand.error(() => pc.run(visp.identifier, '#'), SyntaxError)
+suite('visp.parser.identifier', () => {
+  demand.error(() => pc.run(visp.parser.identifier, '#'), SyntaxError)
 
   demand.cases('identifier', [
     ['define!', {type: 'identifier', value: 'define!'}],
@@ -99,7 +99,7 @@ suite('visp.identifier', () => {
   ])
 })
 
-suite('visp.call', () => {
+suite('visp.parser.call', () => {
   const pairs = [
     [
       'some-fn!()',
@@ -128,7 +128,7 @@ suite('visp.call', () => {
   demand.cases('call', pairs)
 })
 
-suite('visp.list', () => {
+suite('visp.parser.list', () => {
   const list = {type: 'identifier', value: 'list'}
 
   const pairs = [
@@ -148,7 +148,7 @@ suite('visp.list', () => {
   ]
 
   for (const [str, value] of pairs) {
-    demand.data(() => pc.run(visp.list, str), value)
+    demand.data(() => pc.run(visp.parser.list, str), value)
   }
 })
 
