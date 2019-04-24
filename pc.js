@@ -108,6 +108,10 @@ pc.oneOf = parsers => {
 
 pc.char = pc.givenLength(char => {
   return input => {
+    if (input === undefined) {
+      return pc.failure('a sequence of characters', 'undefined')
+    }
+
     const first = input.charAt(0)
     return first == char
       ? pc.success(char, input.slice(1))
@@ -121,20 +125,22 @@ pc.many = parser => {
     const acc = []
     let result = {isFailure: false, rest: input}
 
+    let rest = input
     let wasMatched = false
 
     while (!result.isFailure) {
-      result = parser(result.rest)
+      result = parser(rest)
 
       if (!result.isFailure) {
         acc.push(result.data)
+        rest = result.rest
       } else {
         wasMatched = true
       }
     }
 
     return wasMatched
-      ? pc.success(acc, '')
+      ? pc.success(acc, rest)
       : pc.failed('at least one match', 'no matches')
   }
 }

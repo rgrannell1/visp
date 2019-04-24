@@ -22,6 +22,11 @@ const isError = (ctr, message = null) => err => {
   }
 }
 
+const suite = (description, thunk) => {
+  console.error(description + '\n')
+  thunk()
+}
+
 demand.error = (thunk, ctr) => {
   inspectError(thunk, isError(ctr))
 }
@@ -29,26 +34,55 @@ demand.error = (thunk, ctr) => {
 demand.data = (thunk, data) => {
   const actual = thunk().data
 
-
-console.log(actual)
+  console.log(actual)
   expect(actual).to.deep.equal(data)
 }
 
-demand.error(() => pc.run(visp.number, '.10'), SyntaxError)
-demand.error(() => pc.run(visp.number, '10.10.10'), SyntaxError)
-demand.error(() => pc.run(visp.boolean, '#nope'), SyntaxError)
-demand.error(() => pc.run(visp.string, '"unterminated '), SyntaxError)
-demand.error(() => pc.run(visp.identifier, '#'), SyntaxError)
+suite('visp.number', () => {
+  demand.error(() => pc.run(visp.number, '.10'), SyntaxError)
+  demand.error(() => pc.run(visp.number, '10.10.10'), SyntaxError)
+})
 
-demand.data(() => pc.run(visp.expression, '#t'), ['#t'])
-demand.data(() => pc.run(visp.expression, '#f'), ['#f'])
-demand.data(() => pc.run(visp.expression, '$sym'), ['$sym'])
-demand.data(() => pc.run(visp.expression, '"a string"'), ['"a string"'])
-demand.data(() => pc.run(visp.call, 'somefn("a", 1, #t)'), ['"a string"'])
+suite('visp.boolean', () => {
+  demand.error(() => pc.run(visp.boolean, '#nope'), SyntaxError)
+})
 
-demand.data(() => pc.run(visp.expression, '  "a string" '), ['"a string"'])
-demand.data(() => pc.run(visp.expression, '  \n#t '), ['#t'])
+suite('visp.string', () => {
+  demand.error(() => pc.run(visp.string, '"unterminated '), SyntaxError)
+})
 
-demand.data(() => pc.run(visp.expression, '  "a string" "a string" +10.1 #f my-fn("a", 1, b)'), [ '"a string"', '"a string"', '+10.1', '#f' ])
+suite('visp.identifier', () => {
+  demand.error(() => pc.run(visp.identifier, '#'), SyntaxError)
+})
+
+suite('visp.call', () => {
+  demand.data(() => pc.run(visp.call, 'some-fn!()'), {
+    type: 'call',
+    fn: 'some-fn!',
+    arguments: []
+  })
+
+  demand.data(() => pc.run(visp.call, 'somefn("a", 1, #t)'), {
+    type:'call',
+    fn: 'somefn',
+    arguments:['a','1','#t']
+  })
+})
+
+/*
+
+suite('visp.expression', () => {
+  demand.data(() => pc.run(visp.expression, '#t'), ['#t'])
+  demand.data(() => pc.run(visp.expression, '#f'), ['#f'])
+  demand.data(() => pc.run(visp.expression, '$sym'), ['$sym'])
+  demand.data(() => pc.run(visp.expression, '"a string"'), ['"a string"'])
+
+  demand.data(() => pc.run(visp.expression, '  "a string" '), ['"a string"'])
+  demand.data(() => pc.run(visp.expression, '  \n#t '), ['#t'])
+
+  demand.data(() => pc.run(visp.expression, '  "a string" "a string" +10.1 #f my-fn("a", 1, b)'), [ '"a string"', '"a string"', '+10.1', '#f' ])
+})
+*/
+
 
 console.log('passed.')

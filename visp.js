@@ -25,6 +25,22 @@ const constants = require('./constants')
 
  */
 
+const ast = {}
+
+ast.call = data => {
+  const [fn, lhb, args, rhb] = data
+  const final = {
+    type: 'call',
+    fn,
+    arguments: args
+  }
+
+  console.log(JSON.stringify(final))
+  console.log('+++')
+
+  return final
+}
+
 const visp = {}
 
 visp.number = function number (input) {
@@ -82,7 +98,8 @@ visp.string = function string (input) {
   const isValidTailChar = char => {
 
     const isSpecial =
-      char === '-'
+      char === '-' ||
+      char === '!'
 
     const isNormal =
       'abcdefghijklmnopqrstuvwxyz'.includes(char) ||
@@ -145,16 +162,14 @@ visp.expression = function expression (input) {
 }
 
 visp.call = function call (input) {
-  const call = pc.collect([
+  const callParser = pc.extractFrom(visp.whitespace)(pc.collect([
     visp.identifier,
     pc.char('('),
     visp.expression,
     pc.char(')')
-  ])
+  ]))
 
-  const trimmed = pc.extractFrom(visp.whitespace)(call)
-
-  return trimmed(input)
+  return pc.map(ast.call, callParser)(input)
 }
 
 module.exports = visp
