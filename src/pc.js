@@ -115,20 +115,21 @@ pc.many = parser => {
     let rest = input
     let wasMatched = false
 
-    while (!result.isFailure) {
-      result = parser(rest)
+    while (true) {
+      result = parser(result.rest)
 
-      if (!result.isFailure) {
+      if (result.isFailure) {
+        break
+      } else {
         acc.push(result.data)
         rest = result.rest
-      } else {
         wasMatched = true
       }
     }
 
     return wasMatched
       ? pc.success(acc, rest)
-      : pc.failed('at least one match', 'no matches')
+      : pc.failure('at least one match', 'no matches')
   }
 }
 

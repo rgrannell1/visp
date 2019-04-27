@@ -5,7 +5,9 @@ coreEnv['make-base-env'] = () => {
   return Object.create(coreEnv, {})
 }
 
-coreEnv.eval = () => {}
+coreEnv.eval = type => {
+  console.log(type)
+}
 
 const ctr = {}
 

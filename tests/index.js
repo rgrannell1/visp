@@ -140,8 +140,7 @@ suite('visp.parser.call', () => {
 suite('visp.parser.list', () => {
   const list = {type: 'symbol', value: 'list'}
 
-  const pairs = [
-    ['()', {type: 'call', fn: list, arguments: [  ]}],
+  const pairs = [    ['()', {type: 'call', fn: list, arguments: [  ]}],
     ['(1 2 3)', {type: 'call', fn: list, arguments: [
       {value: 1, type: 'number'},
       {value: 2, type: 'number'},
