@@ -22,9 +22,16 @@ ast.string = data => {
   }
 }
 
-ast.identifier = data => {
+ast.symbol = data => {
   return {
-    type: 'identifier',
+    type: 'symbol',
+    value:data
+  }
+}
+
+ast.keyword = data => {
+  return {
+    type: 'keyword',
     value:data
   }
 }
@@ -47,7 +54,7 @@ ast.list = data => {
   const final = {
     type: 'call',
     fn: {
-      type: 'identifier',
+      type: 'symbol',
       value: 'list'
     },
     arguments: args

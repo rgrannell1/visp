@@ -33,21 +33,8 @@ pc.run = (parser, input) => {
   }
 }
 
-pc.always = val => {}
-pc.never = val => {}
-pc.bind = (parser, fn) => {}
-pc.seq = (...parsers) => {}
-pc.attempt = (parser) => {}
-pc.look = (parser) => {}
-pc.choice = (...parsers) => {}
-pc.optional = (parser, dft) => {}
-pc.expected = (parser, message) => {}
-pc.many = (parser) => {}
-pc.enum = (...parsers) => {}
-
-
 pc.map = (fn, parser) => {
-  return (input) => {
+  return input => {
     const result = parser(input)
     return result.isFailure
       ? result

@@ -68,48 +68,34 @@ visp.parser.string = function string (input) {
   return pc.success(ast.string(input.slice(0, included + 1)), input.slice(included + 1))
 }
 
-{
+const contains = set => char => set.includes(char)
 
-  const isValidHeadChar = char => {
-    const isSpecial =
-      char === '$' ||
-      char === '#'
+const identifier = ({isValidHeadChar, isValidTailChar, parser}) => input => {
+  const lead = input[0]
 
-    const isNormal =
-      'abcdefghijklmnopqrstuvwxyz'.includes(char) ||
-      '0123456789'.includes(char)
-
-    return isSpecial || isNormal
+  if (!isValidHeadChar(lead)) {
+    return pc.failure('valid head character', lead)
   }
 
-  const isValidTailChar = char => {
-
-    const isSpecial =
-      char === '-' ||
-      char === '!'
-
-    const isNormal =
-      'abcdefghijklmnopqrstuvwxyz'.includes(char) ||
-      '0123456789'.includes(char)
-
-    return isSpecial || isNormal
+  let included = 1
+  while (isValidTailChar(input.charAt(included)) && included < input.length) {
+    included++
   }
 
-  visp.parser.identifier = function identifier (input) {
-    const lead = input[0]
-
-    if (!isValidHeadChar(lead)) {
-      return pc.failure('valid head character', lead)
-    }
-
-    let included = 1
-    while (isValidTailChar(input.charAt(included)) && included < input.length) {
-      included++
-    }
-
-    return pc.success(ast.identifier(input.slice(0, included)), input.slice(included))
-  }
+  return pc.success(ast[parser](input.slice(0, included)), input.slice(included))
 }
+
+visp.parser.symbol = identifier({
+  isValidHeadChar: contains('$' + 'abcdefghijklmnopqrstuvwxyz' + '0123456789'),
+  isValidTailChar: contains('-!?' + 'abcdefghijklmnopqrstuvwxyz' + '0123456789'),
+  parser: 'symbol'
+})
+
+visp.parser.keyword = identifier({
+  isValidHeadChar: contains('#'),
+  isValidTailChar: contains('-!?' + 'abcdefghijklmnopqrstuvwxyz' + '0123456789'),
+  parser: 'keyword'
+})
 
 visp.parser.eof = function eof (input) {
   return input.length === 0
@@ -142,7 +128,8 @@ visp.parser.expression = function expression (input) {
     visp.parser.boolean,
     visp.parser.string,
     visp.parser.number,
-    visp.parser.identifier
+    visp.parser.symbol,
+    visp.parser.keyword
   ])
 
   const whitespaceIgnore = pc.extractFrom(visp.parser.whitespace)(part)
@@ -161,7 +148,8 @@ visp.parser.list = function list (input) {
 
 visp.parser.call = function call (input) {
   const callParser = pc.extractFrom(visp.parser.whitespace)(pc.collect([
-    visp.parser.identifier,
+    visp.parser.symbol,,
+    visp.parser.keyword,
     pc.char('('),
     visp.parser.expression,
     pc.char(')')
@@ -170,8 +158,6 @@ visp.parser.call = function call (input) {
   return pc.map(ast.call, callParser)(input)
 }
 
-visp.evaluate = expr => {
-  // -- todo
-}
+visp.evaluate = require('./evaluate')
 
 module.exports = visp

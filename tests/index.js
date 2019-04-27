@@ -88,14 +88,23 @@ suite('visp.parser.string', () => {
   ])
 })
 
-suite('visp.parser.identifier', () => {
-  demand.error(() => pc.run(visp.parser.identifier, '#'), SyntaxError)
+suite('visp.parser.symbol', () => {
+  demand.error(() => pc.run(visp.parser.symbol, '#'), SyntaxError)
 
-  demand.cases('identifier', [
-    ['define!', {type: 'identifier', value: 'define!'}],
-    ['$vau', {type: 'identifier', value: '$vau'}],
-    ['private', {type: 'identifier', value: 'private'}],
-    ['my-fn-is-dashed', {type: 'identifier', value: 'my-fn-is-dashed'}]
+  demand.cases('symbol', [
+    ['define!', {type: 'symbol', value: 'define!'}],
+    ['$vau', {type: 'symbol', value: '$vau'}],
+    ['private', {type: 'symbol', value: 'private'}],
+    ['my-fn-is-dashed', {type: 'symbol', value: 'my-fn-is-dashed'}]
+  ])
+})
+
+suite('visp.parser.keyword', () => {
+  demand.error(() => pc.run(visp.parser.keyword, '#'), SyntaxError)
+
+  demand.cases('keyword', [
+    ['#ignore', {type: 'keyword', value: '#ignore'}],
+    ['#enum', {type: 'keyword', value: '#enum'}]
   ])
 })
 
@@ -105,7 +114,7 @@ suite('visp.parser.call', () => {
       'some-fn!()',
       {
           type: 'call',
-          fn: {type: 'identifier', value: 'some-fn!'},
+          fn: {type: 'symbol', value: 'some-fn!'},
           arguments: []
         }
     ],
@@ -114,7 +123,7 @@ suite('visp.parser.call', () => {
       {
         type:'call',
         fn: {
-          type: 'identifier', value: '$somefn!'
+          type: 'symbol', value: '$somefn!'
         },
         arguments: [
           { type: 'string', value: 'a' },
@@ -129,7 +138,7 @@ suite('visp.parser.call', () => {
 })
 
 suite('visp.parser.list', () => {
-  const list = {type: 'identifier', value: 'list'}
+  const list = {type: 'symbol', value: 'list'}
 
   const pairs = [
     ['()', {type: 'call', fn: list, arguments: [  ]}],
