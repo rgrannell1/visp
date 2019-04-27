@@ -137,6 +137,7 @@ parser.expression = function expression (input) {
 parser.program = function program (input) {
   return pc.collect([
     pc.many(parser.expression),
+    parser.whitespace,
     parser.eof
   ])(input)
 }
