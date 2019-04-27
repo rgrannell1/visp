@@ -148,8 +148,7 @@ visp.parser.list = function list (input) {
 
 visp.parser.call = function call (input) {
   const callParser = pc.extractFrom(visp.parser.whitespace)(pc.collect([
-    visp.parser.symbol,,
-    visp.parser.keyword,
+    visp.parser.symbol,
     pc.char('('),
     visp.parser.expression,
     pc.char(')')
