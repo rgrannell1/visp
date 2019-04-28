@@ -1,14 +1,6 @@
 
 const coreEnv = {}
 
-coreEnv['make-base-env'] = () => {
-  return Object.create(coreEnv, {})
-}
-
-coreEnv.eval = type => {
-  console.log(type)
-}
-
 const ctr = {}
 
 ctr.primitive = underlying => ({underlying})
@@ -23,4 +15,27 @@ ctr.operative = (formals, envformal, body, staticenv) => {
       // -- ??
     }
   }
+}
+
+coreEnv.eval = (type, env) => {
+  console.log(type)
+}
+
+coreEnv['make-base-env'] = () => {
+  return Object.create(coreEnv, {})
+}
+
+coreEnv['$define!'] = ctr.primitive((dynenv, name, expr) => {
+  const value = coreEnv.eval(expr, dynenv)
+
+  if (name.type !== 'symbol') {
+    throw new TypeError(`symbol must be a name, but a ${name.type} was supplied.`)
+  }
+
+  dynenv.set(name.name) = value
+  return value
+})
+
+module.exports = expr => {
+  return coreEnv.eval(expr, coreEnv)
 }

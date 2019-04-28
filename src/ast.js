@@ -63,4 +63,15 @@ ast.list = data => {
   return final
 }
 
+ast.program = data => {
+  const [expressions] = data
+
+  const final = {
+    type: 'program',
+    expressions: expressions[0]
+  }
+
+  return final
+}
+
 module.exports = ast

@@ -135,11 +135,33 @@ parser.expression = function expression (input) {
 }
 
 parser.program = function program (input) {
-  return pc.collect([
+  const prs = pc.collect([
     pc.many(parser.expression),
     parser.whitespace,
     parser.eof
-  ])(input)
+  ])
+
+  return pc.map(ast.program, prs)(input)
+}
+
+parser.stringify = function stringify (ast) {
+  if (ast.data && ast.data.type === 'program') {
+    return parser.stringify(ast.data)
+  }
+
+  if (ast.type === 'program') {
+    return ast.expressions.map(parser.stringify).join('\n')
+  } else if (ast.type === 'call') {
+    const args = ast.arguments.map(parser.stringify).join(', ')
+    return `${ast.fn.value}(${args})`
+  } else if (ast.type === 'symbol') {
+    return ast.value
+  } else if (ast.type === 'number') {
+    return ast.value
+  }
+  else {
+    throw new Error(`unsupported value`)
+  }
 }
 
 parser.list = function list (input) {
