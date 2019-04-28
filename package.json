@@ -10,7 +10,7 @@
     "chalk": "2.4.2"
   },
   "scripts": {
-    "test:watch": "ag -l | entr node tests/index.js",
-    "play:watch": "ag -l | entr node hello.js"
+    "test:watch": "ag -l | entr node tests/index.js; echo 'done'",
+    "play:watch": "ag -l | entr node hello.js; echo 'done'"
   }
 }

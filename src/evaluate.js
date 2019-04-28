@@ -17,8 +17,24 @@ ctr.operative = (formals, envformal, body, staticenv) => {
   }
 }
 
-coreEnv.eval = (type, env) => {
-  console.log(type)
+coreEnv.eval = (expr, env) => {
+  if (expr && expr.hasOwnProperty('isFailure') && expr.isFailure !== true) {
+    return coreEnv.eval(expr.data, env)
+  } else if (expr.type === 'program') {
+    for (const subExpr of expr.expressions) {
+      coreEnv.eval(subExpr, env)
+    }
+  } else if (expr.type === 'call') {
+    const fn = expr.fn.value
+    const args = expr.arguments
+
+    // -- operatives and applicatives treat argument evaluation differently;
+    // -- operatives control parameter evaluation, while applicatives always
+    // -- evaluate their arguments
+
+  } else {
+    console.log(expr)
+  }
 }
 
 coreEnv['make-base-env'] = () => {
