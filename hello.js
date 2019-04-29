@@ -2,8 +2,11 @@
 const visp = require('./src/visp')
 
 const prog = `
-$define(x, 1)
-$define(y, 2)
+$define!(x, 1)
+$define!(y, 2)
+
+$define!(is-x-symbol, is-symbol?(x))
+$define!(is-y-symbol, is-symbol?(y))
 
 minus(plus(x, y), 2)`
 

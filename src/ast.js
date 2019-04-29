@@ -25,7 +25,7 @@ ast.string = data => {
 ast.symbol = data => {
   return {
     type: 'symbol',
-    value:data
+    value: data
   }
 }
 
