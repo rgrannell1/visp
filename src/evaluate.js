@@ -1,12 +1,21 @@
 
 const ast = require('./ast')
+const parser = require('./parser')
 
 const callCombiner = (call, dynenv) => {
   const args = call.arguments
+
+  if (!call.fn || !call.fn.value) {
+    throw new TypeError(`missing function symbol: ${parser.deparse(call)}`)
+  }
+
   const calleable = dynenv[call.fn.value]
+  if (calleable === undefined) {
+    throw new Error(`symbol "${call.fn.value}" not defined`)
+  }
 
   if (calleable.type === 'primitive') {
-    // eval args
+
   } else if (calleable.type === 'applicative') {
     // eval args
   } else if (calleable.type === 'operative') {
@@ -58,7 +67,7 @@ coreEnv['lookup-environment'] = calleable.primitive((symbol, env) => {
 })
 
 coreEnv['$define!'] = calleable.primitive((dynenv, name, expr) => {
-  const value = coreEnv.eval(expr, dynenv)
+  const value = coreEnv.eval.underlying(expr, dynenv)
 
   if (name.type !== 'symbol') {
     throw new TypeError(`symbol must be a name, but a ${name.type} was supplied.`)
@@ -72,10 +81,10 @@ coreEnv.eval = calleable.primitive((expr, env) => {
   // -- switch to invoke
 
   if (expr && expr.hasOwnProperty('isFailure') && expr.isFailure !== true) {
-    return coreEnv.eval(expr.data, env)
+    return coreEnv.eval.underlying(expr.data, env)
   } else if (expr.type === 'program') {
     for (const subExpr of expr.expressions) {
-      coreEnv.eval(subExpr, env)
+      coreEnv.eval.underlying(subExpr, env)
     }
   } else if (expr.type === 'call') {
     callCombiner(expr, env)
@@ -88,15 +97,12 @@ coreEnv.eval = calleable.primitive((expr, env) => {
   }
 })
 
-module.exports = expr => {
-  const call = {
-    type: 'call',
-    fn: {
-      type: 'symbol',
-      value: 'eval'
-    },
-    arguments: expr
+module.exports = function evaluateProgram (expr) {
+  if (expr.isFailure !== false) {
+    throw new SyntaxError('parse failed!')
   }
 
-  return callCombiner(call, coreEnv)
+  const {data} = expr
+
+  return coreEnv.eval.underlying(data, coreEnv)
 }

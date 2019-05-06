@@ -160,7 +160,7 @@ parser.deparse = function stringify (ast) {
     return ast.value
   }
   else {
-    throw new Error(`unsupported value`)
+    throw new Error(`unsupported value: ${JSON.stringify(ast, null, 2)}`)
   }
 }
 
