@@ -1,9 +1,30 @@
 
 const ast = require('./ast')
 
+const callCombiner = (call, dynenv) => {
+  const args = call.arguments
+  const calleable = coreEnv['lookup-environment'](call.fn, dynenv)
+
+  if (calleable.type === 'primitive') {
+    // eval args
+  } else if (calleable.type === 'applicative') {
+    // eval args
+  } else if (calleable.type === 'operative') {
+
+  } else {
+    throw new TypeError('cannot call.')
+  }
+}
+
 const ctr = {}
 
-ctr.primitive = underlying => ({underlying})
+ctr.primitive = underlying => {
+  return {
+    type: 'primitive',
+    underlying
+  }
+}
+
 ctr.operative = (formals, envformal, body, staticenv) => {
   // -- check that rest parameter is last.
   return {
@@ -11,32 +32,20 @@ ctr.operative = (formals, envformal, body, staticenv) => {
     envformal,
     body,
     staticenv,
-    invoke (exp, dynenv) {
-      // -- ??
-    }
+    type: 'operative'
+  }
+}
+ctr.applicative = () => {
+  return {
+    underlying,
+    type: 'applicative'
   }
 }
 
-const coreEnv = new Map()
+const coreEnv = {}
 
 // -- todo eval arguments!
-coreEnv.set('is?', function is (symbol, val) {
-  if (!symbol || !symbol.type) {
-    throw new TypeError('internal error: no type on supplied value.')
-  }
-
-  return ast.boolean(symbol.type === val.value)
-})
-
-coreEnv.set('is-symbol?', function isSymbol (symbol) {
-  return coreEnv.get('is?')(symbol, ast.symbol('symbol'))
-})
-
-coreEnv.set('plus', function plus (symbol) {
-
-})
-
-coreEnv.set('lookup-environment', function lookupEnvironment (symbol, env) {
+coreEnv['lookup-environment'] = ctr.primitive((symbol, env) => {
   if (symbol.type !== 'symbol') {
     throw new TypeError('cannot lookup non-symbol value')
   }
@@ -47,40 +56,6 @@ coreEnv.set('lookup-environment', function lookupEnvironment (symbol, env) {
 
   return env[symbol.value]
 })
-
-coreEnv.set('$define!', function define (symbol, val) {
-  if (symbol.type !== 'symbol') {
-    throw new TypeError('cannot define non-symbol value')
-  }
-
-})
-
-coreEnv.set('eval', (expr, env) => {
-  const eval = coreEnv.get('eval')
-
-  if (expr && expr.hasOwnProperty('isFailure') && expr.isFailure !== true) {
-    return eval(expr.data, env)
-  } else if (expr.type === 'program') {
-    for (const subExpr of expr.expressions) {
-      eval(subExpr, env)
-    }
-  } else if (expr.type === 'call') {
-    const args = expr.arguments
-
-    const calleable = coreEnv.get('lookup-environment')(expr.fn, env)
-
-    // -- operatives and applicatives treat argument evaluation differently;
-    // -- operatives control parameter evaluation, while applicatives always
-    // -- evaluate their arguments
-
-  } else {
-    console.log(expr)
-  }
-})
-
-coreEnv['make-base-env'] = () => {
-  return Object.create(coreEnv, {})
-}
 
 coreEnv['$define!'] = ctr.primitive((dynenv, name, expr) => {
   const value = coreEnv.eval(expr, dynenv)
@@ -93,6 +68,36 @@ coreEnv['$define!'] = ctr.primitive((dynenv, name, expr) => {
   return value
 })
 
+coreEnv.eval = ctr.primitive((expr, env) => {
+  // -- switch to invoke
+
+  if (expr && expr.hasOwnProperty('isFailure') && expr.isFailure !== true) {
+    return coreEnv.eval(expr.data, env)
+  } else if (expr.type === 'program') {
+    for (const subExpr of expr.expressions) {
+      coreEnv.eval(subExpr, env)
+    }
+  } else if (expr.type === 'call') {
+    callCombiner(expr, env)
+    // -- operatives and applicatives treat argument evaluation differently;
+    // -- operatives control parameter evaluation, while applicatives always
+    // -- evaluate their arguments
+
+  } else {
+    console.log(expr)
+  }
+})
+
 module.exports = expr => {
-  return coreEnv.get('eval')(expr, coreEnv)
+
+    {
+      type: 'call',
+      fn: {
+        type: 'symbol',
+        value: 'eval'
+      },
+      arguments: args
+    }
+
+  return coreEnv.eval(expr, coreEnv)
 }
