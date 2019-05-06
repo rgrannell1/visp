@@ -3,7 +3,7 @@ const ast = require('./ast')
 
 const callCombiner = (call, dynenv) => {
   const args = call.arguments
-  const calleable = coreEnv['lookup-environment'](call.fn, dynenv)
+  const calleable = dynenv[call.fn.value]
 
   if (calleable.type === 'primitive') {
     // eval args
@@ -16,16 +16,16 @@ const callCombiner = (call, dynenv) => {
   }
 }
 
-const ctr = {}
+const calleable = {}
 
-ctr.primitive = underlying => {
+calleable.primitive = underlying => {
   return {
     type: 'primitive',
     underlying
   }
 }
 
-ctr.operative = (formals, envformal, body, staticenv) => {
+calleable.operative = (formals, envformal, body, staticenv) => {
   // -- check that rest parameter is last.
   return {
     formals,
@@ -35,7 +35,7 @@ ctr.operative = (formals, envformal, body, staticenv) => {
     type: 'operative'
   }
 }
-ctr.applicative = () => {
+calleable.applicative = () => {
   return {
     underlying,
     type: 'applicative'
@@ -45,7 +45,7 @@ ctr.applicative = () => {
 const coreEnv = {}
 
 // -- todo eval arguments!
-coreEnv['lookup-environment'] = ctr.primitive((symbol, env) => {
+coreEnv['lookup-environment'] = calleable.primitive((symbol, env) => {
   if (symbol.type !== 'symbol') {
     throw new TypeError('cannot lookup non-symbol value')
   }
@@ -57,7 +57,7 @@ coreEnv['lookup-environment'] = ctr.primitive((symbol, env) => {
   return env[symbol.value]
 })
 
-coreEnv['$define!'] = ctr.primitive((dynenv, name, expr) => {
+coreEnv['$define!'] = calleable.primitive((dynenv, name, expr) => {
   const value = coreEnv.eval(expr, dynenv)
 
   if (name.type !== 'symbol') {
@@ -68,7 +68,7 @@ coreEnv['$define!'] = ctr.primitive((dynenv, name, expr) => {
   return value
 })
 
-coreEnv.eval = ctr.primitive((expr, env) => {
+coreEnv.eval = calleable.primitive((expr, env) => {
   // -- switch to invoke
 
   if (expr && expr.hasOwnProperty('isFailure') && expr.isFailure !== true) {
@@ -89,15 +89,14 @@ coreEnv.eval = ctr.primitive((expr, env) => {
 })
 
 module.exports = expr => {
+  const call = {
+    type: 'call',
+    fn: {
+      type: 'symbol',
+      value: 'eval'
+    },
+    arguments: expr
+  }
 
-    {
-      type: 'call',
-      fn: {
-        type: 'symbol',
-        value: 'eval'
-      },
-      arguments: args
-    }
-
-  return coreEnv.eval(expr, coreEnv)
+  return callCombiner(call, coreEnv)
 }

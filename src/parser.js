@@ -144,15 +144,15 @@ parser.program = function program (input) {
   return pc.map(ast.program, prs)(input)
 }
 
-parser.stringify = function stringify (ast) {
+parser.deparse = function stringify (ast) {
   if (ast.data && ast.data.type === 'program') {
-    return parser.stringify(ast.data)
+    return parser.deparse(ast.data)
   }
 
   if (ast.type === 'program') {
-    return ast.expressions.map(parser.stringify).join('\n')
+    return ast.expressions.map(parser.deparse).join('\n')
   } else if (ast.type === 'call') {
-    const args = ast.arguments.map(parser.stringify).join(', ')
+    const args = ast.arguments.map(parser.deparse).join(', ')
     return `${ast.fn.value}(${args})`
   } else if (ast.type === 'symbol') {
     return ast.value

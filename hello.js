@@ -12,7 +12,7 @@ minus(plus(x, y), 2)`
 
 const ast = visp.parse.program(prog)
 
-console.log(visp.parse.stringify(ast))
+console.log(visp.parse.deparse(ast))
 
 const result = visp.eval(ast)
 
