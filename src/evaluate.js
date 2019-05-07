@@ -2,6 +2,10 @@
 const ast = require('./ast')
 const parser = require('./parser')
 
+const evalArgs = (args, dynenv) => {
+  return args.map(arg => coreEnv.eval.underlying(arg, dynenv))
+}
+
 const callCombiner = (call, dynenv) => {
   const args = call.arguments
 
@@ -15,11 +19,11 @@ const callCombiner = (call, dynenv) => {
   }
 
   if (calleable.type === 'primitive') {
-
+    return calleable.underlying(...call.arguments, dynenv)
   } else if (calleable.type === 'applicative') {
-    // eval args
+    return calleable.underlying(...evalArgs(call.arguments, dynenv), dynenv)
   } else if (calleable.type === 'operative') {
-
+    throw new Error('operative not implemented')
   } else {
     throw new TypeError('cannot call.')
   }
@@ -44,7 +48,7 @@ calleable.operative = (formals, envformal, body, staticenv) => {
     type: 'operative'
   }
 }
-calleable.applicative = () => {
+calleable.applicative = underlying => {
   return {
     underlying,
     type: 'applicative'
@@ -52,6 +56,11 @@ calleable.applicative = () => {
 }
 
 const coreEnv = {}
+
+coreEnv.show = calleable.primitive((expr, dynenv) => {
+  console.log(coreEnv.eval.underlying(expr, dynenv))
+  // -- return #inert
+})
 
 // -- todo eval arguments!
 coreEnv['lookup-environment'] = calleable.primitive((symbol, env) => {
@@ -66,16 +75,23 @@ coreEnv['lookup-environment'] = calleable.primitive((symbol, env) => {
   return env[symbol.value]
 })
 
-coreEnv['$define!'] = calleable.primitive((dynenv, name, expr) => {
+// -- switch to operative
+coreEnv['$define!'] = calleable.primitive((name, expr, dynenv) => {
   const value = coreEnv.eval.underlying(expr, dynenv)
 
   if (name.type !== 'symbol') {
     throw new TypeError(`symbol must be a name, but a ${name.type} was supplied.`)
   }
 
-  dynenv.set(name.name) = value
+  dynenv[name.value] = value
   return value
 })
+
+// -- occasionally useful
+coreEnv.plus = calleable.applicative((num0, num1) => num0 + num1)
+coreEnv.minus = calleable.applicative((num0, num1) => num0 - num1)
+coreEnv.times = calleable.applicative((num0, num1) => num0 * num1)
+coreEnv.over = calleable.applicative((num0, num1) => num0 / num1)
 
 coreEnv.eval = calleable.primitive((expr, env) => {
   // -- switch to invoke
@@ -87,13 +103,18 @@ coreEnv.eval = calleable.primitive((expr, env) => {
       coreEnv.eval.underlying(subExpr, env)
     }
   } else if (expr.type === 'call') {
-    callCombiner(expr, env)
-    // -- operatives and applicatives treat argument evaluation differently;
-    // -- operatives control parameter evaluation, while applicatives always
-    // -- evaluate their arguments
+    return callCombiner(expr, env)
+  } else if (expr.type === 'symbol') {
+    const lookedUp = env[expr.value]
+    if (lookedUp === undefined) {
+      throw new Error(`${expr.value} is not defined`)
+    }
 
+    return lookedUp
+  } else if (expr.type === 'number') {
+    return expr.value
   } else {
-    console.log(expr)
+    throw new TypeError(`unsupported sexpr ${JSON.stringify(expr)}`)
   }
 })
 
@@ -102,7 +123,5 @@ module.exports = function evaluateProgram (expr) {
     throw new SyntaxError('parse failed!')
   }
 
-  const {data} = expr
-
-  return coreEnv.eval.underlying(data, coreEnv)
+  return coreEnv.eval.underlying(expr.data, coreEnv)
 }
