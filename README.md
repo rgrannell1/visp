@@ -25,12 +25,23 @@ So far, I've implemented:
 It looks like this.
 
 ```js
-define!(my-hash, hash(
-  (monday  0)
-  (tuesday 1)
-))
 
-define!(falsity, $lambda(() #false))
+$define!(my-int 101)
+$define!(my-hash0 hash((
+  ("a" 1)
+  ("b" 2)
+  ("c" 3)
+  ("d" 4))))
+
+$define!(my-hash1 hash((
+  ("e" 1)
+  ("f" 2)
+  ("g" 3)
+  ("h" 4))))
+
+$define!(my-set set((1 1 2 3)))
+
+show(my-set)
 ```
 
 ## Standard Library
