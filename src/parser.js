@@ -30,7 +30,7 @@ const constants = require('./constants')
 
 const parser = {}
 
-parser.number = function number (input) {
+parser.number = function number(input) {
   const matches = constants.regexp.number.exec(input)
 
   if (matches) {
@@ -41,7 +41,7 @@ parser.number = function number (input) {
   }
 }
 
-parser.boolean = function boolean (input) {
+parser.boolean = function boolean(input) {
   const candidate = input.slice(0, 2)
 
   if (candidate === '#f' || candidate === '#t') {
@@ -51,7 +51,7 @@ parser.boolean = function boolean (input) {
   }
 }
 
-parser.inert = function inert (input) {
+parser.inert = function inert(input) {
   const candidate = input.slice(0, 6)
 
   if (candidate === '#inert') {
@@ -61,7 +61,7 @@ parser.inert = function inert (input) {
   }
 }
 
-parser.string = function string (input) {
+parser.string = function string(input) {
   if (input.charAt(0) !== '"') {
     return pc.failure('"', input.charAt(0))
   }
@@ -80,7 +80,7 @@ parser.string = function string (input) {
 
 const contains = set => char => set.includes(char)
 
-const identifier = ({isValidHeadChar, isValidTailChar, parser}) => input => {
+const identifier = ({ isValidHeadChar, isValidTailChar, parser }) => input => {
   const lead = input[0]
 
   if (!isValidHeadChar(lead)) {
@@ -97,17 +97,17 @@ const identifier = ({isValidHeadChar, isValidTailChar, parser}) => input => {
 
 parser.symbol = identifier({
   isValidHeadChar: contains('$' + 'abcdefghijklmnopqrstuvwxyz' + '0123456789'),
-  isValidTailChar: contains('-!?' + 'abcdefghijklmnopqrstuvwxyz' + '0123456789'),
+  isValidTailChar: contains('-!?*' + 'abcdefghijklmnopqrstuvwxyz' + '0123456789'),
   parser: 'symbol'
 })
 
 parser.keyword = identifier({
   isValidHeadChar: contains('#'),
-  isValidTailChar: contains('-!?' + 'abcdefghijklmnopqrstuvwxyz' + '0123456789'),
+  isValidTailChar: contains('-!?*' + 'abcdefghijklmnopqrstuvwxyz' + '0123456789'),
   parser: 'keyword'
 })
 
-parser.eof = function eof (input) {
+parser.eof = function eof(input) {
   return input.length === 0
     ? pc.success(null, input)
     : pc.failure('eof', input)
@@ -116,7 +116,7 @@ parser.eof = function eof (input) {
 {
   const spaceChars = new Set([' ', '  ', ',', '\n'])
 
-  parser.whitespace = function whitespace (input) {
+  parser.whitespace = function whitespace(input) {
     if (input === undefined) {
       throw new TypeError('undefined value supplied.')
     }
@@ -131,7 +131,7 @@ parser.eof = function eof (input) {
   }
 }
 
-parser.expression = function expression (input) {
+parser.expression = function expression(input) {
   const part = pc.oneOf([
     parser.call,
     parser.list,
@@ -147,7 +147,7 @@ parser.expression = function expression (input) {
   return pc.many(whitespaceIgnore)(input)
 }
 
-parser.program = function program (input) {
+parser.program = function program(input) {
   const prs = pc.collect([
     pc.many(parser.expression),
     parser.whitespace,
@@ -157,7 +157,7 @@ parser.program = function program (input) {
   return pc.map(ast.program, prs)(input)
 }
 
-parser.deparse = function stringify (ast) {
+parser.deparse = function stringify(ast) {
   if (ast.data && ast.data.type === 'program') {
     return parser.deparse(ast.data)
   }
@@ -173,13 +173,15 @@ parser.deparse = function stringify (ast) {
     return ast.value
   } else if (ast.type === 'string') {
     return ast.value
+  } else if (ast.hasOwnProperty('isFailure')) {
+    throw new Error(`parse result passed to deparse!: ${JSON.stringify(ast, null, 2)}`)
   }
   else {
-    throw new Error(`unsupported value: ${JSON.stringify(ast, null, 2)}`)
+    throw new Error(`cannot deparse value: ${JSON.stringify(ast, null, 2)}`)
   }
 }
 
-parser.list = function list (input) {
+parser.list = function list(input) {
   const listParser = pc.extractFrom(parser.whitespace)(pc.collect([
     pc.char('('),
     parser.expression,
@@ -189,7 +191,7 @@ parser.list = function list (input) {
   return pc.map(ast.list, listParser)(input)
 }
 
-parser.call = function call (input) {
+parser.call = function call(input) {
   const callParser = pc.extractFrom(parser.whitespace)(pc.collect([
     parser.symbol,
     pc.char('('),

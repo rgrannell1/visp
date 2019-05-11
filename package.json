@@ -7,7 +7,8 @@
   "license": "MIT",
   "dependencies": {
     "chai": "4.2.0",
-    "chalk": "2.4.2"
+    "chalk": "2.4.2",
+    "longjohn": "0.2.12"
   },
   "scripts": {
     "test:watch": "ag -l | entr node tests/index.js; echo 'done'",

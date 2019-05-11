@@ -3,7 +3,9 @@ const calleable = require('../calleable')
 
 const lib = {}
 
-lib['hash'] = calleable.applicative(parts => {
+const defs = {}
+
+defs['hash'] = parts => {
   const data = {}
 
   for (const part of parts) {
@@ -11,10 +13,20 @@ lib['hash'] = calleable.applicative(parts => {
   }
 
   return data
+}
+
+defs['hash-join'] = (...hashes) => {
+  return Object.assign({}, ...hashes)
+}
+
+lib['hash'] = calleable.applicative(defs['hash'])
+lib['hash*'] = calleable.applicative((...parts) => {
+  return defs['hash'](parts)
 })
 
-lib['hash-join'] = calleable.applicative((...hashes) => {
-  return Object.assign({}, ...hashes)
+lib['hash-join'] = calleable.applicative(defs['hash-join'])
+lib['hash-join*'] = calleable.applicative((...parts) => {
+  return defs['hash-join'](parts)
 })
 
 lib['hash-keys'] = calleable.applicative(hash => {

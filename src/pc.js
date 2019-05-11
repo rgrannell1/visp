@@ -54,7 +54,6 @@ pc.apply = (fn, parsers) => {
       }
 
       const data = result.data
-
       if (data === undefined) {
         throw new TypeError('data not returned from parser')
       }

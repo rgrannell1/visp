@@ -1,4 +1,6 @@
 
+require('longjohn');
+
 const fs = require('fs')
 const visp = require('./src/visp')
 

@@ -7,6 +7,8 @@ const lib = {
   hash: require('./lib/hash'),
   set: require('./lib/set'),
   list: require('./lib/list'),
+  lens: require('./lib/lens'),
+  symbol: require('./lib/symbol')
 }
 
 const evalArgs = (args, dynenv) => {
@@ -37,8 +39,6 @@ const callCombiner = (call, dynenv) => {
 }
 
 const coreEnv = Object.assign({}, ...Object.values(lib))
-
-console.log(coreEnv)
 
 coreEnv.show = calleable.primitive((expr, dynenv) => {
   console.log(coreEnv.eval.underlying(expr, dynenv))
