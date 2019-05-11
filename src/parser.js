@@ -14,6 +14,8 @@ const constants = require('./constants')
   <boolean>    -> #t
                -> #f
 
+  <inert>      -> #inert
+
   <number>     -> <digit>
                -> <digit><digit>
 
@@ -46,6 +48,16 @@ parser.boolean = function boolean (input) {
     return pc.success(ast.boolean(candidate), input.slice(2))
   } else {
     return pc.failure('#t or #f', candidate)
+  }
+}
+
+parser.inert = function inert (input) {
+  const candidate = input.slice(0, 6)
+
+  if (candidate === '#inert') {
+    return pc.success(ast.inert(candidate), input.slice(6))
+  } else {
+    return pc.failure('#inert', candidate)
   }
 }
 
@@ -124,6 +136,7 @@ parser.expression = function expression (input) {
     parser.call,
     parser.list,
     parser.boolean,
+    parser.inert,
     parser.string,
     parser.number,
     parser.symbol,
@@ -157,6 +170,8 @@ parser.deparse = function stringify (ast) {
   } else if (ast.type === 'symbol') {
     return ast.value
   } else if (ast.type === 'number') {
+    return ast.value
+  } else if (ast.type === 'string') {
     return ast.value
   }
   else {

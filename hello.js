@@ -1,11 +1,8 @@
 
+const fs = require('fs')
 const visp = require('./src/visp')
 
-const prog = `
-$define!(x, 1)
-$define!(y, 2)
-
-show(plus(x, plus(y, y)))`
+const prog = fs.readFileSync('./hello.vp').toString()
 
 const ast = visp.parse.program(prog)
 

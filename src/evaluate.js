@@ -21,7 +21,7 @@ const callCombiner = (call, dynenv) => {
   if (calleable.type === 'primitive') {
     return calleable.underlying(...call.arguments, dynenv)
   } else if (calleable.type === 'applicative') {
-    return calleable.underlying(...evalArgs(call.arguments, dynenv), dynenv)
+    return calleable.underlying(...evalArgs(call.arguments, dynenv))
   } else if (calleable.type === 'operative') {
     throw new Error('operative not implemented')
   } else {
@@ -57,9 +57,44 @@ calleable.applicative = underlying => {
 
 const coreEnv = {}
 
+coreEnv.list = calleable.applicative((...list) => list)
+
+coreEnv['hash'] = calleable.applicative(parts => {
+  const data = {}
+
+  for (const part of parts) {
+    data[part[0]] = part[1]
+  }
+
+  return data
+})
+
+coreEnv['hash-join'] = calleable.applicative((...hashes) => {
+  return Object.assign({}, ...hashes)
+})
+
+coreEnv['hash-keys'] = calleable.applicative(hash => {
+  return Object.keys(hash)
+})
+
+coreEnv['hash-values'] = calleable.applicative(hash => {
+  return Object.values(hash)
+})
+
+coreEnv['hash-size'] = calleable.applicative(hash => {
+  return Object.values(hash).length
+})
+
+coreEnv['hash-entries'] = calleable.applicative(hash => {
+  return Object.entries(hash)
+})
+
+coreEnv['set'] = calleable.applicative(parts => {
+  return new Set(parts)
+})
+
 coreEnv.show = calleable.primitive((expr, dynenv) => {
   console.log(coreEnv.eval.underlying(expr, dynenv))
-  // -- return #inert
 })
 
 // -- todo eval arguments!
@@ -107,11 +142,13 @@ coreEnv.eval = calleable.primitive((expr, env) => {
   } else if (expr.type === 'symbol') {
     const lookedUp = env[expr.value]
     if (lookedUp === undefined) {
-      throw new Error(`${expr.value} is not defined`)
+      throw new Error(`${expr.value} is not defined in:\n ${Object.keys(env).join('\n')}`)
     }
 
     return lookedUp
   } else if (expr.type === 'number') {
+    return expr.value
+  } else if (expr.type === 'string') {
     return expr.value
   } else {
     throw new TypeError(`unsupported sexpr ${JSON.stringify(expr)}`)

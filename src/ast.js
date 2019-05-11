@@ -15,6 +15,13 @@ ast.boolean = data => {
   }
 }
 
+ast.inert = data => {
+  return {
+    type: 'inert',
+    value: '#inert'
+  }
+}
+
 ast.string = data => {
   return {
     type: 'string',
