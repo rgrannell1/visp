@@ -5,8 +5,9 @@
 Visp is a toy-language built for a few purposes:
 
 - I'd like to build a language from scratch
-- I want to experiment with veneer syntax over s-expressions, and its impact on metaprogramming
+- I want to experiment with non-sexpr languages with metaprogramming support
 - I want to implement `vau-calculus`
+- I want to implement a language with lenses as the sole path management method
 - If this works out, I'd like to switch to this language from Node.js
 
 > Why on earth would you want a half-baked pseudoscheme with f-expressions, which are evil?
