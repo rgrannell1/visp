@@ -1,6 +1,13 @@
 
 const ast = require('./ast')
 const parser = require('./parser')
+const calleable = require('./calleable')
+
+const lib = {
+  hash: require('./lib/hash'),
+  set: require('./lib/set'),
+  list: require('./lib/list'),
+}
 
 const evalArgs = (args, dynenv) => {
   return args.map(arg => coreEnv.eval.underlying(arg, dynenv))
@@ -29,69 +36,9 @@ const callCombiner = (call, dynenv) => {
   }
 }
 
-const calleable = {}
+const coreEnv = Object.assign({}, ...Object.values(lib))
 
-calleable.primitive = underlying => {
-  return {
-    type: 'primitive',
-    underlying
-  }
-}
-
-calleable.operative = (formals, envformal, body, staticenv) => {
-  // -- check that rest parameter is last.
-  return {
-    formals,
-    envformal,
-    body,
-    staticenv,
-    type: 'operative'
-  }
-}
-calleable.applicative = underlying => {
-  return {
-    underlying,
-    type: 'applicative'
-  }
-}
-
-const coreEnv = {}
-
-coreEnv.list = calleable.applicative((...list) => list)
-
-coreEnv['hash'] = calleable.applicative(parts => {
-  const data = {}
-
-  for (const part of parts) {
-    data[part[0]] = part[1]
-  }
-
-  return data
-})
-
-coreEnv['hash-join'] = calleable.applicative((...hashes) => {
-  return Object.assign({}, ...hashes)
-})
-
-coreEnv['hash-keys'] = calleable.applicative(hash => {
-  return Object.keys(hash)
-})
-
-coreEnv['hash-values'] = calleable.applicative(hash => {
-  return Object.values(hash)
-})
-
-coreEnv['hash-size'] = calleable.applicative(hash => {
-  return Object.values(hash).length
-})
-
-coreEnv['hash-entries'] = calleable.applicative(hash => {
-  return Object.entries(hash)
-})
-
-coreEnv['set'] = calleable.applicative(parts => {
-  return new Set(parts)
-})
+console.log(coreEnv)
 
 coreEnv.show = calleable.primitive((expr, dynenv) => {
   console.log(coreEnv.eval.underlying(expr, dynenv))
