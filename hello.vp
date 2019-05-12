@@ -1,6 +1,19 @@
 
+$define!(sym symbol("some js symbol"))
 $define!(val hash*(
   ("a" 1)
-  ("b" 2)))
+  ("b" 2)
+  (sym hash*(
+    ("c" 3)
+    ("d" 4)))))
 
-show(lens-get(at-key("a") val))
+$define!(accessor at-key(sym))
+
+$define!(test $lambda((x y)
+  show("hello!")
+  $define!(z, 3)
+  sum*(x y z)))
+
+show(test(1 2))
+
+show(lens-get(accessor val))

@@ -11,6 +11,19 @@ pc.success = (data, rest) => {
   return {isFailure: false, data, rest}
 }
 
+pc.label = (parser, error = '', actual = '') => {
+  return input => {
+    const result = parser(input)
+    if (!result) {
+      throw new SyntaxError(`Parser didn't return a result.`)
+    }
+
+    return result.isFailure
+      ? pc.failure(expected || result.expected, actual || result.actual)
+      : result
+  }
+}
+
 pc.givenLength = (parser, min = 1) => {
   return input => {
     if (input.length < min) {

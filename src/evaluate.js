@@ -8,7 +8,8 @@ const lib = {
   set: require('./lib/set'),
   list: require('./lib/list'),
   lens: require('./lib/lens'),
-  symbol: require('./lib/symbol')
+  symbol: require('./lib/symbol'),
+  math: require('./lib/math')
 }
 
 const evalArgs = (args, dynenv) => {
@@ -69,12 +70,6 @@ coreEnv['$define!'] = calleable.primitive((name, expr, dynenv) => {
   return value
 })
 
-// -- occasionally useful
-coreEnv.plus = calleable.applicative((num0, num1) => num0 + num1)
-coreEnv.minus = calleable.applicative((num0, num1) => num0 - num1)
-coreEnv.times = calleable.applicative((num0, num1) => num0 * num1)
-coreEnv.over = calleable.applicative((num0, num1) => num0 / num1)
-
 coreEnv.eval = calleable.primitive((expr, env) => {
   // -- switch to invoke
 
@@ -102,9 +97,50 @@ coreEnv.eval = calleable.primitive((expr, env) => {
   }
 })
 
+coreEnv['$lambda'] = calleable.primitive((formals, ...rest) => {
+  const body = rest.slice(0, -1)
+  const dynenv = rest[rest.length - 1]
+
+  const scope = Object.assign({}, dynenv)
+
+  return {
+    underlying: (...args) => {
+      if (formals.type === 'call') {
+        if (formals.fn.value !== 'list') {
+          throw new SyntaxError('invalid formals')
+        }
+        let ith = 0
+
+        for (const formal of formals.arguments) {
+          if (formal.type === 'symbol') {
+            scope[formal.value] = args[ith]
+          } else {
+            throw new SyntaxError('invalid formal')
+          }
+          ith++
+        }
+
+      } else if (formals.type === 'symbol') {
+        scope[formals.value] = args[0]
+      } else {
+        throw new SyntaxError('invalid formals')
+      }
+
+      let result;
+
+      for (const expr of body) {
+        result = coreEnv.eval.underlying(expr, scope)
+      }
+
+      return result
+    },
+    type: 'applicative'
+  }
+})
+
 module.exports = function evaluateProgram (expr) {
   if (expr.isFailure !== false) {
-    throw new SyntaxError('parse failed!')
+    throw new SyntaxError(`cannot evaluate, program failed to parse:\nexpected: ${expr.expected}\nactual: ${expr.actual}`)
   }
 
   return coreEnv.eval.underlying(expr.data, coreEnv)
