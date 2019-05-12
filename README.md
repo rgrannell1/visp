@@ -49,11 +49,13 @@ show(lens-get(accessor val))
 
 ## Standard Library
 
-- `boolean?`
-- `not?`
-- `and?`
-- `or?`
-- `$and?`
-- `$or?`
-- `$eq?`
-- `$equal?`
+```
+sum
+sum*
+product
+product*
+plus
+minus
+times
+over
+```
