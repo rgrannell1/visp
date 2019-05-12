@@ -61,6 +61,20 @@ parser.inert = function inert(input) {
   }
 }
 
+{
+  const ops = new Set([
+    '<-'
+  ])
+
+  parser.infix = function infix (input) {
+    for (const op of ops) {
+      return pc.success(op, input.slice(op.length))
+    }
+
+    return pc.failure(input, 'an operator')
+  }
+}
+
 parser.string = function string(input) {
   if (input.charAt(0) !== '"') {
     return pc.failure('"', input.charAt(0))

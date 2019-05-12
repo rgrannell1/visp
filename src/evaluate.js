@@ -9,7 +9,8 @@ const lib = {
   list: require('./lib/list'),
   lens: require('./lib/lens'),
   symbol: require('./lib/symbol'),
-  math: require('./lib/math')
+  math: require('./lib/math'),
+  functionals: require('./lib/functionals')
 }
 
 const evalArgs = (args, dynenv) => {
