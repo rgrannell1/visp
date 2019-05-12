@@ -27,22 +27,24 @@ It looks like this.
 
 ```js
 
-$define!(my-int 101)
-$define!(my-hash0 hash((
+$define!(sym symbol("some js symbol"))
+$define!(val hash*(
   ("a" 1)
   ("b" 2)
-  ("c" 3)
-  ("d" 4))))
+  (sym hash*(
+    ("c" 3)
+    ("d" 4)))))
 
-$define!(my-hash1 hash((
-  ("e" 1)
-  ("f" 2)
-  ("g" 3)
-  ("h" 4))))
+$define!(accessor at-key(sym))
 
-$define!(my-set set((1 1 2 3)))
+$define!(test $lambda((x y)
+  show("hello!")
+  $define!(z, 3)
+  sum*(x y z)))
 
-show(my-set)
+show(test(1 2))
+
+show(lens-get(accessor val))
 ```
 
 ## Standard Library
