@@ -13,7 +13,9 @@ const lib = {
 }
 
 const evalArgs = (args, dynenv) => {
-  return args.map(arg => coreEnv.eval.underlying(arg, dynenv))
+  return args === null
+    ? []
+    : args.map(arg => coreEnv.eval.underlying(arg, dynenv))
 }
 
 const callCombiner = (call, dynenv) => {
@@ -92,6 +94,8 @@ coreEnv.eval = calleable.primitive((expr, env) => {
     return expr.value
   } else if (expr.type === 'string') {
     return expr.value
+  } else if (expr.type === 'boolean') {
+    return expr.value
   } else {
     throw new TypeError(`unsupported sexpr ${JSON.stringify(expr)}`)
   }
@@ -111,7 +115,7 @@ coreEnv['$lambda'] = calleable.primitive((formals, ...rest) => {
         }
         let ith = 0
 
-        for (const formal of formals.arguments) {
+        for (const formal of formals.arguments || []) {
           if (formal.type === 'symbol') {
             scope[formal.value] = args[ith]
           } else {

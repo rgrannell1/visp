@@ -119,6 +119,18 @@ pc.char = pc.givenLength(char => {
   }
 }, 1)
 
+pc.option = parser => {
+  return input => {
+    const result = parser(input)
+
+    if (result.isFailure) {
+      return pc.success(null, input)
+    } else {
+      return result
+    }
+  }
+}
+
 pc.many = parser => {
   return input => {
     const acc = []
@@ -139,9 +151,11 @@ pc.many = parser => {
       }
     }
 
-    return wasMatched
-      ? pc.success(acc, rest)
-      : pc.failure('at least one match', 'no matches')
+    if (wasMatched) {
+      return pc.success(acc, rest)
+    } else {
+      return pc.failure('at least one match', 'no matches')
+    }
   }
 }
 

@@ -13,8 +13,9 @@ $define!(test $fn((x y)
   $define!(z, 3)
   sum*(x y z 4)))
 
-$define!(truth $fn(() #true))
+$define!(truth $fn(() #t))
 
+show("help help!")
 show(truth())
 
 show(lens-get(accessor val))

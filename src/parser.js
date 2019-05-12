@@ -120,7 +120,6 @@ parser.eof = function eof(input) {
     if (input === undefined) {
       throw new TypeError('undefined value supplied.')
     }
-
     let included = 0
 
     while (spaceChars.has(input.charAt(included)) && included < input.length - 1) {
@@ -140,12 +139,11 @@ parser.expression = function expression(input) {
     parser.string,
     parser.number,
     parser.symbol,
-    parser.keyword,
-    parser.whitespace
+    parser.keyword
   ])
 
   const whitespaceIgnore = pc.extractFrom(parser.whitespace)(part)
-  return pc.many(whitespaceIgnore)(input)
+  return pc.many(whitespaceIgnore, false)(input)
 }
 
 parser.program = function program(input) {
@@ -185,7 +183,7 @@ parser.deparse = function stringify(ast) {
 parser.list = function list(input) {
   const listParser = pc.extractFrom(parser.whitespace)(pc.collect([
     pc.char('('),
-    parser.expression,
+    pc.option(parser.expression),
     pc.char(')')
   ]))
 
@@ -196,7 +194,7 @@ parser.call = function call(input) {
   const callParser = pc.extractFrom(parser.whitespace)(pc.collect([
     parser.symbol,
     pc.char('('),
-    parser.expression,
+    pc.option(parser.expression),
     pc.char(')')
   ]))
 
