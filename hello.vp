@@ -9,11 +9,12 @@ $define!(val hash*(
 
 $define!(accessor at-key(sym))
 
-$define!(test $lambda((x y)
-  show("hello!")
+$define!(test $fn((x y)
   $define!(z, 3)
-  sum*(x y z)))
+  sum*(x y z 4)))
 
-show(test(1 2))
+$define!(truth $fn(() #true))
+
+show(truth())
 
 show(lens-get(accessor val))

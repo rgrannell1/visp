@@ -138,6 +138,8 @@ coreEnv['$lambda'] = calleable.primitive((formals, ...rest) => {
   }
 })
 
+coreEnv['$fn'] = coreEnv['$lambda']
+
 module.exports = function evaluateProgram (expr) {
   if (expr.isFailure !== false) {
     throw new SyntaxError(`cannot evaluate, program failed to parse:\nexpected: ${expr.expected}\nactual: ${expr.actual}`)

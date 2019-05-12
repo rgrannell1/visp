@@ -140,7 +140,8 @@ parser.expression = function expression(input) {
     parser.string,
     parser.number,
     parser.symbol,
-    parser.keyword
+    parser.keyword,
+    parser.whitespace
   ])
 
   const whitespaceIgnore = pc.extractFrom(parser.whitespace)(part)
