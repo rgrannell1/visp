@@ -233,7 +233,7 @@ parser.binaryCall = function binaryCall(input) {
   const binaryParser = pc.extractFrom(parser.whitespace)(pc.collect([
     expressionPart,
     pc.extractFrom(parser.whitespace)(parser.infix),
-    parser.expression
+    expressionPart
   ]))
 
   return pc.map(ast.binaryCall, binaryParser)(input)

@@ -1,3 +1,19 @@
 
 sym <- symbol("some js symbol")
-show(sym)
+val <- hash*(
+  ("a" 1)
+  ("b" 2)
+  (sym hash*(
+    ("c" 3)
+    ("d" 4))))
+
+accessor <- at-key(sym)
+
+test <- $fn((x y)
+  $define!(z, 3)
+  sum*(x y z 4)
+)
+
+show(select(truth (#t #f #t)))
+
+show(lens-get(accessor val))
