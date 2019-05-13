@@ -19,6 +19,16 @@ const evalArgs = (args, dynenv) => {
     : args.map(arg => coreEnv.eval.underlying(arg, dynenv))
 }
 
+const internal = {
+  assert: {}
+}
+
+internal.assert.isList = (val, paramName) => {
+  if (val.type !== 'call' || val.fn.value !== 'list') {
+    throw new Error(`${paramName} must be a list`)
+  }
+}
+
 const callCombiner = (call, dynenv) => {
   const args = call.arguments
 
@@ -74,6 +84,27 @@ coreEnv['$define!'] = calleable.primitive((name, expr, dynenv) => {
 })
 
 coreEnv['<-'] = coreEnv['$define!']
+
+coreEnv.match = calleable.primitive((val, pairs, dynenv) => {
+  internal.assert.isList(pairs, 'pairs')
+
+  for (const pair of pairs.arguments) {
+    internal.assert.isList(pair, 'pair')
+
+    const [predicate, expr] = pair.arguments
+    const evalPredicate = coreEnv.eval.underlying(predicate, dynenv)
+
+    const result = callCombiner({
+      type: 'call',
+      fn: predicate,
+      arguments: [val]
+    }, dynenv)
+
+    if (result) {
+      return coreEnv.eval.underlying(expr, dynenv)
+    }
+  }
+});
 
 coreEnv.eval = calleable.primitive((expr, env) => {
   // -- switch to invoke

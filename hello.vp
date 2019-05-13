@@ -1,19 +1,11 @@
 
-sym <- symbol("some js symbol")
-val <- hash*(
-  ("a" 1)
-  ("b" 2)
-  (sym hash*(
-    ("c" 3)
-    ("d" 4))))
+sym <- 101
+res <- match(sym, (
+  (falsity? 101)
+  (truth? 202)))
 
-accessor <- at-key(sym)
+recur <- $fn(()
+  show("'call'")
+  recur())
 
-test <- $fn((x y)
-  $define!(z, 3)
-  sum*(x y z 4)
-)
-
-show(select(truth (#t #f #t)))
-
-show(lens-get(accessor val))
+recur()
