@@ -73,6 +73,8 @@ coreEnv['$define!'] = calleable.primitive((name, expr, dynenv) => {
   return value
 })
 
+coreEnv['<-'] = coreEnv['$define!']
+
 coreEnv.eval = calleable.primitive((expr, env) => {
   // -- switch to invoke
 
@@ -98,7 +100,7 @@ coreEnv.eval = calleable.primitive((expr, env) => {
   } else if (expr.type === 'boolean') {
     return expr.value
   } else {
-    throw new TypeError(`unsupported sexpr ${JSON.stringify(expr)}`)
+    throw new TypeError(`unsupported sexpr ${JSON.stringify(expr, null, 2)}`)
   }
 })
 

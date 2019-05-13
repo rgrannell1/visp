@@ -55,6 +55,21 @@ ast.call = data => {
   return final
 }
 
+ast.binaryCall = data => {
+  const [lhs, op, rhs] = data
+
+  const final = {
+    type: 'call',
+    fn: {
+      type: 'symbol',
+      value: op
+    },
+    arguments: [lhs, rhs]
+  }
+
+  return final
+}
+
 ast.list = data => {
   const [lhb, args, rhb] = data
 

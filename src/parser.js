@@ -68,7 +68,9 @@ parser.inert = function inert(input) {
 
   parser.infix = function infix (input) {
     for (const op of ops) {
-      return pc.success(op, input.slice(op.length))
+      if (input.startsWith(op)) {
+        return pc.success(op, input.slice(op.length))
+      }
     }
 
     return pc.failure(input, 'an operator')
@@ -146,6 +148,7 @@ parser.eof = function eof(input) {
 
 parser.expression = function expression(input) {
   const part = pc.oneOf([
+    parser.binaryCall,
     parser.call,
     parser.list,
     parser.boolean,
@@ -157,7 +160,7 @@ parser.expression = function expression(input) {
   ])
 
   const whitespaceIgnore = pc.extractFrom(parser.whitespace)(part)
-  return pc.many(whitespaceIgnore, false)(input)
+  return pc.many(whitespaceIgnore)(input)
 }
 
 parser.program = function program(input) {
@@ -213,6 +216,27 @@ parser.call = function call(input) {
   ]))
 
   return pc.map(ast.call, callParser)(input)
+}
+
+parser.binaryCall = function binaryCall(input) {
+  const expressionPart = pc.oneOf([
+    parser.call,
+    parser.list,
+    parser.boolean,
+    parser.inert,
+    parser.string,
+    parser.number,
+    parser.symbol,
+    parser.keyword
+  ])
+
+  const binaryParser = pc.extractFrom(parser.whitespace)(pc.collect([
+    expressionPart,
+    pc.extractFrom(parser.whitespace)(parser.infix),
+    parser.expression
+  ]))
+
+  return pc.map(ast.binaryCall, binaryParser)(input)
 }
 
 module.exports = parser

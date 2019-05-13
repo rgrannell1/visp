@@ -98,6 +98,10 @@ pc.oneOf = parsers => {
         continue
       }
 
+      if (result.isFailure === false && result.data === undefined) {
+        throw new Error('undefined data returned from parser')
+      }
+
       return result
     }
 
