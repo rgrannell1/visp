@@ -36,7 +36,12 @@ const callCombiner = (call, dynenv) => {
     throw new TypeError(`missing function symbol: ${parser.deparse(call)}`)
   }
 
+  if (!dynenv.hasOwnProperty(call.fn.value)) {
+    throw new Error(`symbol "${call.fn.value}" not in scope`)
+  }
+
   const calleable = dynenv[call.fn.value]
+
   if (calleable === undefined) {
     throw new Error(`symbol "${call.fn.value}" not defined`)
   }
@@ -85,7 +90,7 @@ coreEnv['$define!'] = calleable.primitive((name, expr, dynenv) => {
 
 coreEnv['<-'] = coreEnv['$define!']
 
-coreEnv.match = calleable.primitive((val, pairs, dynenv) => {
+coreEnv['$match'] = calleable.primitive((val, pairs, dynenv) => {
   internal.assert.isList(pairs, 'pairs')
 
   for (const pair of pairs.arguments) {
@@ -104,6 +109,27 @@ coreEnv.match = calleable.primitive((val, pairs, dynenv) => {
       return coreEnv.eval.underlying(expr, dynenv)
     }
   }
+});
+
+coreEnv['$cond'] = calleable.primitive((val, pairs, dynenv) => {
+  internal.assert.isList(pairs, 'pairs')
+
+  for (const pair of pairs.arguments) {
+    internal.assert.isList(pair, 'pair')
+
+    const [bool, expr] = pair.arguments
+    const evalBool = coreEnv.eval.underlying(predicate, dynenv)
+
+    if (evalBool === true) {
+      return coreEnv.eval.underlying(expr, dynenv)
+    }
+  }
+});
+
+coreEnv['$if'] = calleable.primitive((cond, first, second) => {
+  return coreEnv.eval.underlying(cond, dynenv) === true
+    ? coreEnv.eval.underlying(first, dynenv)
+    : coreEnv.eval.underlying(second, dynenv)
 });
 
 coreEnv.eval = calleable.primitive((expr, env) => {

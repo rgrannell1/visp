@@ -1,11 +1,6 @@
 
 sym <- 101
-res <- match(sym, (
-  (falsity? 101)
-  (truth? 202)))
-
-recur <- $fn(()
-  show("'call'")
-  recur())
-
-recur()
+x <- $if (truth?()
+  10
+  20)
+show(x)
