@@ -72,8 +72,16 @@ lib['fold'] = calleable.applicative((fn, list, initial) => {
     throw new TypeError('no initial state passed to fold!')
   }
   return list.reduce((acc, current) => {
-    return fn(acc, current)
-  })
+    return fn.underlying(acc, current)
+  }, initial)
+})
+
+lib['length?'] = calleable.applicative((num, list) => {
+  return list.length === num
+})
+
+lib['not-length?'] = calleable.applicative((num, list) => {
+  return list.length !== num
 })
 
 module.exports = lib

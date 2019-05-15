@@ -30,6 +30,22 @@ const constants = require('./constants')
 
 const parser = {}
 
+parser.comment = function comment(input) {
+  if (input.charAt(0) !== ';') {
+    return pc.failure(';', input.charAt(0))
+  }
+
+  let includes = 0
+  while (input.charAt(includes) !== '\n') {
+    if (includes > input.length) {
+      return pc.failure(';', 'unexpected eof')
+    }
+    ++includes
+  }
+
+  return pc.success(ast.comment(input.slice(0, includes)), input.slice(includes))
+}
+
 parser.number = function number(input) {
   const matches = constants.regexp.number.exec(input)
 
@@ -111,17 +127,21 @@ const identifier = ({ isValidHeadChar, isValidTailChar, parser }) => input => {
   return pc.success(ast[parser](input.slice(0, included)), input.slice(included))
 }
 
-parser.symbol = identifier({
-  isValidHeadChar: contains('$' + 'abcdefghijklmnopqrstuvwxyz' + '0123456789'),
-  isValidTailChar: contains('-!?*' + 'abcdefghijklmnopqrstuvwxyz' + '0123456789'),
-  parser: 'symbol'
-})
+{
+  const alpha = 'abcdefghijklmnopqrstuvwxyz'
 
-parser.keyword = identifier({
-  isValidHeadChar: contains('#'),
-  isValidTailChar: contains('-!?*' + 'abcdefghijklmnopqrstuvwxyz' + '0123456789'),
-  parser: 'keyword'
-})
+  parser.symbol = identifier({
+    isValidHeadChar: contains('$' + alpha + alpha.toUpperCase() + '0123456789'),
+    isValidTailChar: contains('-!?*' + alpha + alpha.toUpperCase() + '0123456789'),
+    parser: 'symbol'
+  })
+
+  parser.keyword = identifier({
+    isValidHeadChar: contains('#'),
+    isValidTailChar: contains('-!?*' + alpha + alpha.toUpperCase() + '0123456789'),
+    parser: 'keyword'
+  })
+}
 
 parser.eof = function eof(input) {
   return input.length === 0
@@ -155,6 +175,7 @@ parser.expression = function expression(input) {
     parser.inert,
     parser.string,
     parser.number,
+    parser.comment,
     parser.symbol,
     parser.keyword
   ])
@@ -164,13 +185,8 @@ parser.expression = function expression(input) {
 }
 
 parser.program = function program(input) {
-  const prs = pc.collect([
-    pc.many(parser.expression),
-    parser.whitespace,
-    parser.eof
-  ])
-
-  return pc.map(ast.program, prs)(input)
+  const whitespaceIgnore = pc.extractFrom(parser.whitespace)(pc.many(parser.expression))
+  return pc.map(ast.program, pc.many(whitespaceIgnore))(input)
 }
 
 parser.deparse = function stringify(ast) {

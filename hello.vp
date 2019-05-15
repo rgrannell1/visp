@@ -1,6 +1,9 @@
 
-sym <- 101
-x <- $if (truth?()
-  10
-  20)
-show(x)
+fs <- require("fs")
+
+; a first comment
+; a second comment
+
+data <- $pipe(fs readFileSync("hello.vp") toString() )
+
+show(data)

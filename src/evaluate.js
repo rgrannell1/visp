@@ -10,7 +10,8 @@ const lib = {
   lens: require('./lib/lens'),
   symbol: require('./lib/symbol'),
   math: require('./lib/math'),
-  functionals: require('./lib/functionals')
+  functionals: require('./lib/functionals'),
+  functionals: require('./lib/imports'),
 }
 
 const evalArgs = (args, dynenv) => {
@@ -76,6 +77,27 @@ coreEnv['lookup-environment'] = calleable.primitive((symbol, env) => {
   return env[symbol.value]
 })
 
+coreEnv['$pipe'] = calleable.primitive((receiver, ...args) => {
+  const callsOrIds = args.slice(0, -1)
+  const dynenv = args[args.length - 1]
+
+  let tmp = coreEnv.eval.underlying(receiver, dynenv)
+
+  for (const arg of callsOrIds) {
+    if (arg.type === 'call') {
+      const innerArgs = (arg.arguments || []).map(subArg => {
+        return coreEnv.eval.underlying(subArg, dynenv)
+      })
+
+      tmp = tmp[arg.fn.value](...innerArgs)
+    } else if (arg.type === 'symbol') {
+      tmp = tmp[arg.value]
+    }
+  }
+
+  return tmp
+})
+
 // -- switch to operative
 coreEnv['$define!'] = calleable.primitive((name, expr, dynenv) => {
   const value = coreEnv.eval.underlying(expr, dynenv)
@@ -126,7 +148,7 @@ coreEnv['$cond'] = calleable.primitive((val, pairs, dynenv) => {
   }
 });
 
-coreEnv['$if'] = calleable.primitive((cond, first, second) => {
+coreEnv['$if'] = calleable.primitive((cond, first, second, dynenv) => {
   return coreEnv.eval.underlying(cond, dynenv) === true
     ? coreEnv.eval.underlying(first, dynenv)
     : coreEnv.eval.underlying(second, dynenv)
@@ -156,6 +178,11 @@ coreEnv.eval = calleable.primitive((expr, env) => {
     return expr.value
   } else if (expr.type === 'boolean') {
     return expr.value
+  } else if (expr.type === 'keyword') {
+    // -- todo set up global symbol registry
+    return expr.value
+  }  else if (expr.type === 'comment') {
+    return
   } else {
     throw new TypeError(`unsupported sexpr ${JSON.stringify(expr, null, 2)}`)
   }
@@ -165,6 +192,8 @@ coreEnv['$lambda'] = calleable.primitive((formals, ...rest) => {
   const body = rest.slice(0, -1)
   const dynenv = rest[rest.length - 1]
 
+console.log(dynenv.f)
+console.log('++++ ++++ ++++ ++++')
   const scope = Object.assign({}, dynenv)
 
   return {

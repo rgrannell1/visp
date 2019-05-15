@@ -8,6 +8,13 @@ ast.number = data => {
   }
 }
 
+ast.comment = data => {
+  return {
+    type: 'comment',
+    value: data
+  }
+}
+
 ast.boolean = data => {
   return {
     type: 'boolean',

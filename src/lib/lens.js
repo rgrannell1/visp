@@ -26,6 +26,10 @@ lib['at'] = calleable.applicative(num => {
   }
 })
 
+lib['get'] = calleable.applicative(keys => {
+
+})
+
 lib['at-key'] = calleable.applicative(key => {
   return {
     get (whole) {
