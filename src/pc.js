@@ -1,61 +1,54 @@
 
+const chalk = require('chalk')
+
 const pc = {}
+const Parser = {}
 
 const data = {}
 
-pc.failure = (expected, actual, fnName) => {
-  return {isFailure: true, expected, actual, fnName}
-}
-
-pc.success = (data, rest) => {
-  return {isFailure: false, data, rest}
-}
-
-pc.label = (parser, error = '', actual = '') => {
-  return input => {
-    const result = parser(input)
-    if (!result) {
-      throw new SyntaxError(`Parser didn't return a result.`)
-    }
-
-    return result.isFailure
-      ? pc.failure(expected || result.expected, actual || result.actual)
-      : result
+Parser.failure = data => {
+  if (typeof data === 'undefined') {
+    throw new TypeError('Parser.failure recieved undefined parse-data')
   }
+
+  const self = {
+    isFailure: true,
+    data
+  }
+
+  return self
 }
 
-pc.givenLength = (parser, min = 1) => {
-  return input => {
-    if (input.length < min) {
-      return pc.failure(`at least ${min} characters`, input.length)
-    } else {
-      return parser(input)
-    }
+Parser.success = (data, rest) => {
+  if (typeof data === 'undefined') {
+    throw new TypeError('Parser.success recieved undefined parse-data')
   }
+
+  const self = {
+    isFailure: false,
+    data,
+    rest
+  }
+
+  return self
 }
 
-pc.run = (parser, input) => {
-  const result = parser(input)
-  if (!result) {
-    throw new SyntaxError(`Parser didn't return a result.`)
-  }
-  if (result.isFailure) {
-    throw new SyntaxError(`Parse error. Expected ${result.expected} got ${result.actual}`)
-  } else {
-    return result
-  }
-}
-
-pc.map = (fn, parser) => {
-  return input => {
+Parser.onSuccess = (fn, parser) => {
+  const self = input => {
     const result = parser(input)
     return result.isFailure
       ? result
-      : pc.success(fn(result.data), result.rest)
+      : Parser.success(fn(result.data), result.rest)
   }
+
+  self.meta = parser => {
+    return parser.meta()
+  }
+
+  return self
 }
 
-pc.apply = (fn, parsers) => {
+Parser.all = parsers => {
   return input => {
     const acc = []
     let current = input
@@ -66,30 +59,21 @@ pc.apply = (fn, parsers) => {
         return result
       }
 
-      const data = result.data
-      if (data === undefined) {
-        throw new TypeError('data not returned from parser')
-      }
-
-      acc.push(data)
+      acc.push(result.data)
       current = result.rest
     }
 
-    return pc.success(fn(...acc), current)
+    return Parser.success(acc, current)
   }
 }
 
-pc.collect = parsers => {
-  return pc.apply((...results) => results, parsers)
+Parser.extract = (junk, parser) => {
+  return Parser.onSuccess(([junk0, data, junk1]) => {
+    return data
+  }, Parser.all([junk, parser, junk]))
 }
 
-pc.extractFrom = junk => {
-  return parser => {
-    return pc.apply((junk0, data, junk1) => data, [junk, parser, junk])
-  }
-}
-
-pc.oneOf = parsers => {
+Parser.oneOf = parsers => {
   return input => {
     for (const parser of parsers) {
       const result = parser(input)
@@ -105,38 +89,48 @@ pc.oneOf = parsers => {
       return result
     }
 
-    return pc.failure(`oneOf [${parsers.map(parser => parser.name)}]`, input)
+    return Parser.failure({
+      message: `I could not parse the input with any of the supplied choice of parsers`
+    })
   }
 }
 
-pc.char = pc.givenLength(char => {
+Parser.character = char => {
   return input => {
-    if (input === undefined) {
-      return pc.failure('a sequence of characters', 'undefined')
+    if (typeof input === 'undefined') {
+      return Parser.failure({
+        message: `I could not parse the character, as I recieved an undefined input`
+      })
     }
 
-    const first = input.charAt(0)
-    return first == char
-      ? pc.success(char, input.slice(1))
-      : pc.failure(`the character ${char}`, `${first} (${first})`)
+    if (input.length === 0) {
+      return Parser.failure({
+        message: `I could not parse the character, as I expected "${char}" but recieved an empty string`
+      })
+    }
 
+    return input.charAt(0) === char
+      ? Parser.success(char, input.slice(1))
+      : Parser.failure({
+          message: `I could not parse the character, as I expected "${char}" but recieved ${input.charAt(0)}`
+        })
   }
-}, 1)
+}
 
-pc.option = parser => {
+Parser.optional = parser => {
   return input => {
     const result = parser(input)
 
     if (result.isFailure) {
-      return pc.success(null, input)
+      return Parser.success(null, input)
     } else {
       return result
     }
   }
 }
 
-pc.many = parser => {
-  return input => {
+Parser.many1 = parser => {
+  const self = input => {
     const acc = []
     let result = {isFailure: false, rest: input}
 
@@ -156,11 +150,34 @@ pc.many = parser => {
     }
 
     if (wasMatched) {
-      return pc.success(acc, rest)
+      return Parser.success(acc, rest)
     } else {
-      return pc.failure('at least one match', 'no matches')
+      return Parser.failure({
+        message: `I could not parse the input, as the parser couldn't parse any of the input`,
+      })
     }
   }
+
+  self.meta = () => {
+    console.log(parser.toString())
+    console.log('+++++++++++++++++++++++++++++=')
+  }
+
+  return self
 }
 
-module.exports = pc
+Parser.report = failure => {
+  let message = chalk.blue('-- PARSING ERROR -----------------------------------------\n\n')
+
+  console.log(failure)
+  console.log('~~~~~~~~~~~~~')
+
+  if (failure.data && failure.data.message) {
+    message += failure.data.message
+    message += '\n'
+  }
+
+  console.log(message)
+}
+
+module.exports = {Parser, pc}

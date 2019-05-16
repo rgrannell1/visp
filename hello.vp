@@ -1,9 +1,2 @@
 
-fs <- require("fs")
-
-; a first comment
-; a second comment
-
-data <- $pipe(fs readFileSync("hello.vp") toString() )
-
-show(data)
+"asdasdasd

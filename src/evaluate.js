@@ -1,6 +1,7 @@
 
 const ast = require('./ast')
 const parser = require('./parser')
+const {Parser} = require('./pc')
 const calleable = require('./calleable')
 
 const lib = {
@@ -192,8 +193,6 @@ coreEnv['$lambda'] = calleable.primitive((formals, ...rest) => {
   const body = rest.slice(0, -1)
   const dynenv = rest[rest.length - 1]
 
-console.log(dynenv.f)
-console.log('++++ ++++ ++++ ++++')
   const scope = Object.assign({}, dynenv)
 
   return {
@@ -235,7 +234,7 @@ coreEnv['$fn'] = coreEnv['$lambda']
 
 module.exports = function evaluateProgram (expr) {
   if (expr.isFailure !== false) {
-    throw new SyntaxError(`cannot evaluate, program failed to parse:\nexpected: ${expr.expected}\nactual: ${expr.actual}`)
+    return Parser.report(expr)
   }
 
   return coreEnv.eval.underlying(expr.data, coreEnv)
