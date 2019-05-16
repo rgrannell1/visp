@@ -41,7 +41,7 @@ Parser.onSuccess = (fn, parser) => {
       : Parser.success(fn(result.data), result.rest)
   }
 
-  self.meta = parser => {
+  self.meta = () => {
     return parser.meta()
   }
 
@@ -49,7 +49,7 @@ Parser.onSuccess = (fn, parser) => {
 }
 
 Parser.all = parsers => {
-  return input => {
+  const self = input => {
     const acc = []
     let current = input
 
@@ -65,6 +65,18 @@ Parser.all = parsers => {
 
     return Parser.success(acc, current)
   }
+
+  self.meta = () => {
+    const metas = parsers.map(parser => {
+      return `- ${parser.meta().description}`
+    })
+
+    return {
+      description: `a sequence of:\n${metas.join('\n')}`
+    }
+  }
+
+  return self
 }
 
 Parser.extract = (junk, parser) => {
@@ -74,7 +86,7 @@ Parser.extract = (junk, parser) => {
 }
 
 Parser.oneOf = parsers => {
-  return input => {
+  const self = input => {
     for (const parser of parsers) {
       const result = parser(input)
 
@@ -93,6 +105,14 @@ Parser.oneOf = parsers => {
       message: `I could not parse the input with any of the supplied choice of parsers`
     })
   }
+
+  self.meta = () => {
+    return {
+      description: 'merp'
+    }
+  }
+
+  return self
 }
 
 Parser.character = char => {
@@ -153,14 +173,15 @@ Parser.many1 = parser => {
       return Parser.success(acc, rest)
     } else {
       return Parser.failure({
-        message: `I could not parse the input, as the parser couldn't parse any of the input`,
+        message: `I could not parse the input once. Expected ${parser.meta().description}`,
       })
     }
   }
 
   self.meta = () => {
-    console.log(parser.toString())
-    console.log('+++++++++++++++++++++++++++++=')
+    return {
+      description: `One or more inputs matching ${parser.meta().description}`
+    }
   }
 
   return self
@@ -168,9 +189,6 @@ Parser.many1 = parser => {
 
 Parser.report = failure => {
   let message = chalk.blue('-- PARSING ERROR -----------------------------------------\n\n')
-
-  console.log(failure)
-  console.log('~~~~~~~~~~~~~')
 
   if (failure.data && failure.data.message) {
     message += failure.data.message

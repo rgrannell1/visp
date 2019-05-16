@@ -265,18 +265,18 @@ parser.expression = function expression(input) {
 
 parser.expression.meta = () => {
   return {
-    description: 'a visp expression, which may be a: ' +
+    description: 'a visp expression, which may be a:\n' +
       [
-        'binary operator call',
-        'function call',
-        'list',
-        'boolean value',
-        'inert value',
-        'a double-quoted string of characters',
-        'a decimal number, with an optional plus or minus sign',
-        'a comment',
-        'a variable name',
-        'a keyword',
+        '  * binary operator call',
+        '  * function call',
+        '  * list',
+        '  * boolean value',
+        '  * inert value',
+        '  * a double-quoted string of characters',
+        '  * a decimal number, with an optional plus or minus sign',
+        '  * a comment',
+        '  * a variable name',
+        '  * a keyword',
       ].join('\n')
   }
 }
