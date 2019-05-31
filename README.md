@@ -19,8 +19,8 @@ I'm unconvinced you need s-expression syntax to metaprogram, and I think macros 
 So far, I've implemented:
 
 - a parser
-- ~~an evaluator~~
-- ~~a standard library~~
+- an evaluator
+- a standard library (WiP)
 - ~~node library wrappers~~
 
 It looks like this.
