@@ -1,5 +1,7 @@
 # visp
 
+[![Build Status](https://travis-ci.org/rgrannell1/visp.svg?branch=master)](https://travis-ci.org/rgrannell1/visp)
+
 > Programming languages should be designed not by piling feature on top of feature, but by removing the weaknesses and restrictions that make additional features appear necessary
 
 Visp is a toy-language built for a few purposes:
