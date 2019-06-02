@@ -16,9 +16,7 @@ const lib = {
 }
 
 const evalArgs = (args, dynenv) => {
-  return args === null
-    ? []
-    : args.map(arg => coreEnv.eval.underlying(arg, dynenv))
+  return args.map(arg => coreEnv.eval.underlying(arg, dynenv))
 }
 
 const internal = {

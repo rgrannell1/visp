@@ -56,7 +56,7 @@ ast.call = data => {
   const final = {
     type: 'call',
     fn,
-    arguments: args
+    arguments: args || []
   }
 
   return final
@@ -86,7 +86,7 @@ ast.list = data => {
       type: 'symbol',
       value: 'list'
     },
-    arguments: args
+    arguments: args || []
   }
 
   return final
