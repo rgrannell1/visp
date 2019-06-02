@@ -1,11 +1,16 @@
 
 const {expect} = require('chai')
 const visp = require('../src/visp')
+const {demand, suite, evaluate} = require('./utils')
 
-const evaluate = source => {
-  return visp.eval(visp.parse.program(source))
-}
+suite('identity', () => {
+  expect(evaluate('identity(10)')).to.equal(10)
+})
 
-expect(evaluate('identity(10)')).to.equal(10)
-expect(evaluate('truth?()')).to.equal(true)
-expect(evaluate('falsity?()')).to.equal(false)
+suite('truth', () => {
+  expect(evaluate('truth?()')).to.equal(true)
+})
+
+suite('falsity', () => {
+  expect(evaluate('falsity?()')).to.equal(false)
+})

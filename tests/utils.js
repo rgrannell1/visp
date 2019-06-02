@@ -3,6 +3,7 @@ const {expect} = require('chai')
 
 const {Parser} = require('../src/pc')
 const visp = require('../src/visp')
+const chalk = require('chalk')
 
 const utils = {}
 
@@ -10,6 +11,14 @@ const ast = {}
 
 ast.symbol = value => {
   return {type: 'symbol', value}
+}
+
+ast.inert = () => {
+  return {type: 'inert', value: '#inert'}
+}
+
+ast.comment = value => {
+  return {type: 'comment', value}
 }
 
 ast.number = value => {
@@ -83,6 +92,16 @@ demand.cases = (fnName, pairs) => {
  for (const [str, value] of pairs) {
     demand.data(() => runParser(visp.parse[fnName], str), value)
   }
+}
+
+utils.suite = (description, thunk) => {
+  const message = `AST component: ${description}\n`
+  console.log(chalk.blue(message))
+  thunk()
+}
+
+utils.evaluate = source => {
+  return visp.eval(visp.parse.program(source))
 }
 
 utils.demand = demand

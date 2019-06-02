@@ -204,7 +204,7 @@ Parser.run = (parser, input) => {
     throw new SyntaxError(`Parser didn't return a result.`)
   }
   if (result.isFailure) {
-    throw new SyntaxError(`Parse error. Expected ${result.expected} got ${result.actual}`)
+    throw new SyntaxError(result.data.message)
   } else {
     return result
   }

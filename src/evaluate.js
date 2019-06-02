@@ -11,8 +11,7 @@ const lib = {
   lens: require('./lib/lens'),
   symbol: require('./lib/symbol'),
   math: require('./lib/math'),
-  functionals: require('./lib/functionals'),
-  functionals: require('./lib/imports'),
+  functionals: require('./lib/functionals')
 }
 
 const evalArgs = (args, dynenv) => {

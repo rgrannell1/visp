@@ -99,7 +99,6 @@ parser.inert = function inert(input) {
   if (candidate === '#inert') {
     return Parser.success(ast.inert(candidate), input.slice(6))
   } else {
-    return Parser.failure('#inert', candidate)
     return Parser.failure({
       message: `I could not parse the inert value, which should be "#inert" but was "${candidate}"`
     })
@@ -110,7 +109,6 @@ parser.inert.meta = () => {
     description: 'an inert value #inert'
   }
 }
-
 
 {
   const ops = new Set([
