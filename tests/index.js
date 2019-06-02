@@ -1,8 +1,9 @@
 
 const {expect} = require('chai')
 const chalk = require('chalk')
+const utils = require('./utils')
 
-const pc = require('../src/pc')
+const {Parser} = require('../src/pc')
 const visp = require('../src/visp')
 
 const demand = {}
@@ -29,12 +30,17 @@ const suite = (description, thunk) => {
   thunk()
 }
 
+const runParser = Parser.run
+
 demand.error = (thunk, ctr) => {
   inspectError(thunk, isError(ctr))
 }
 
 demand.data = (thunk, data) => {
-  const actual = thunk().data
+  const res = thunk()
+  expect(res).to.have.property('data')
+
+  const actual = res.data
 
   try {
     console.log('ACTUAL:')
@@ -49,13 +55,13 @@ demand.data = (thunk, data) => {
 
 demand.cases = (fnName, pairs) => {
  for (const [str, value] of pairs) {
-    demand.data(() => pc.run(visp.parser[fnName], str), value)
+    demand.data(() => runParser(visp.parse[fnName], str), value)
   }
 }
 
-suite('visp.parser.number', () => {
-  demand.error(() => pc.run(visp.parser.number, '.10'), SyntaxError)
-  demand.error(() => pc.run(visp.parser.number, '10.10.10'), SyntaxError)
+suite('visp.parse.number', () => {
+  demand.error(() => runParser(visp.parse.number, '.10'), SyntaxError)
+  demand.error(() => runParser(visp.parse.number, '10.10.10'), SyntaxError)
 
   const pairs = [
     ['+10.01', 10.01],
@@ -66,97 +72,93 @@ suite('visp.parser.number', () => {
   ]
 
   for (const [str, value] of pairs) {
-    demand.data(() => pc.run(visp.parser.number, str), {type: 'number', value})
+    demand.data(() => runParser(visp.parse.number, str), utils.ast.number(value))
   }
 })
 
-suite('visp.parser.boolean', () => {
-  demand.error(() => pc.run(visp.parser.boolean, '#nope'), SyntaxError)
+suite('visp.parse.boolean', () => {
+  demand.error(() => runParser(visp.parse.boolean, '#nope'), SyntaxError)
 
   demand.cases('boolean', [
-    ['#t', {type: 'boolean', value: true}],
-    ['#f', {type: 'boolean', value: false}]
+    ['#t', utils.ast.boolean(true)],
+    ['#f', utils.ast.boolean(false)]
   ])
 })
 
-suite('visp.parser.string', () => {
-  demand.error(() => pc.run(visp.parser.string, '"unterminated '), SyntaxError)
+suite('visp.parse.string', () => {
+  demand.error(() => runParser(visp.parse.string, '"unterminated '), SyntaxError)
 
   demand.cases('string', [
-    ['"a string"', {type: 'string', value: 'a string'}]
+    ['"a string"', utils.ast.string('a string')]
     // -- todo add inner string support.
   ])
 })
 
-suite('visp.parser.symbol', () => {
-  demand.error(() => pc.run(visp.parser.symbol, '#'), SyntaxError)
+suite('visp.parse.symbol', () => {
+  demand.error(() => runParser(visp.parse.symbol, '#'), SyntaxError)
 
   demand.cases('symbol', [
-    ['define!', {type: 'symbol', value: 'define!'}],
-    ['$vau', {type: 'symbol', value: '$vau'}],
-    ['private', {type: 'symbol', value: 'private'}],
-    ['my-fn-is-dashed', {type: 'symbol', value: 'my-fn-is-dashed'}]
+    ['define!', utils.ast.symbol('define!')],
+    ['$vau', utils.ast.symbol('$vau')],
+    ['private', utils.ast.symbol('private')],
+    ['my-fn-is-dashed', utils.ast.symbol('my-fn-is-dashed')]
   ])
 })
 
-suite('visp.parser.keyword', () => {
-  demand.error(() => pc.run(visp.parser.keyword, '#'), SyntaxError)
+suite('visp.parse.keyword', () => {
+  demand.error(() => runParser(visp.parse.keyword, '#'), SyntaxError)
 
   demand.cases('keyword', [
-    ['#ignore', {type: 'keyword', value: '#ignore'}],
-    ['#enum', {type: 'keyword', value: '#enum'}]
+    ['#ignore', utils.ast.keyword('#ignore')],
+    ['#enum', utils.ast.keyword('#enum')]
   ])
 })
 
-suite('visp.parser.call', () => {
+suite('visp.parse.call', () => {
   const pairs = [
     [
       'some-fn!()',
-      {
-          type: 'call',
-          fn: {type: 'symbol', value: 'some-fn!'},
-          arguments: []
-        }
+      utils.ast.call('sone-fn!', [])
     ],
     [
       '$somefn!("a" 1 #t)',
-      {
-        type:'call',
-        fn: {
-          type: 'symbol', value: '$somefn!'
-        },
-        arguments: [
-          { type: 'string', value: 'a' },
-          { type: 'number', value: 1 },
-          { type: 'boolean', value: true }
-        ]
-      }
+      utils.ast.call('$somefn!', [
+        utils.ast.string('a'),
+        utils.ast.number(1),
+        utils.ast.boolean(true),
+      ])
     ]
   ]
 
   demand.cases('call', pairs)
 })
 
-suite('visp.parser.list', () => {
+suite('visp.parse.list', () => {
   const list = {type: 'symbol', value: 'list'}
 
-  const pairs = [    ['()', {type: 'call', fn: list, arguments: [  ]}],
-    ['(1 2 3)', {type: 'call', fn: list, arguments: [
-      {value: 1, type: 'number'},
-      {value: 2, type: 'number'},
-      {value: 3, type: 'number'},
-    ]}],
-    ['(())', {type: 'call', fn: list, arguments: [
-      {
-        type: "call",
-        fn: list,
-        arguments: []
-      }
-    ]}]
+  const pairs = [
+    [
+      '()',
+      utils.ast.call('list', [])
+    ],
+    [
+      '(1 2 3)',
+      utils.ast.call('list', [
+        utils.ast.number(1),
+        utils.ast.number(2),
+        utils.ast.number(3),
+      ])
+    ],
+    [
+      '(())',
+      utils.ast.call('list', [
+        utils.ast.call(list, [])
+      ])
+    ]
   ]
 
   for (const [str, value] of pairs) {
-    demand.data(() => pc.run(visp.parser.list, str), value)
+    demand.data(() => runParser(visp.parse.list, str), value)
   }
 })
 

@@ -198,4 +198,16 @@ Parser.report = failure => {
   console.log(message)
 }
 
+Parser.run = (parser, input) => {
+  const result = parser(input)
+  if (!result) {
+    throw new SyntaxError(`Parser didn't return a result.`)
+  }
+  if (result.isFailure) {
+    throw new SyntaxError(`Parse error. Expected ${result.expected} got ${result.actual}`)
+  } else {
+    return result
+  }
+}
+
 module.exports = {Parser, pc}
