@@ -11,8 +11,8 @@ defs.sum = (nums) => {
 
 defs.product = (nums) => {
   return nums.reduce((a, b) => {
-    return a + b
-  }, 0)
+    return a * b
+  }, 1)
 }
 
 const lib = {}
