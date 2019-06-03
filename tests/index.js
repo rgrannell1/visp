@@ -1,7 +1,5 @@
 
-const chalk = require('chalk')
-
-const paths = [
+const tests = [
   './parser',
   './stdlib/functionals',
   './stdlib/hash',
@@ -11,14 +9,6 @@ const paths = [
   './stdlib/math',
   './stdlib/set',
   './stdlib/symbol'
-]
+].map(path => require(path))
 
-for (const path of paths) {
-  const tests = require(path)
-
-  for (const data of Object.values(tests)) {
-    data.run()
-  }
-}
-
-console.log(chalk.green('test-cases passed.'))
+module.exports = tests

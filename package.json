@@ -11,8 +11,8 @@
     "longjohn": "0.2.12"
   },
   "scripts": {
-    "test": "node tests/index.js",
-    "test:watch": "ag -l | entr node tests/index.js; echo 'done'",
+    "test": "node tests/run.js",
+    "test:watch": "ag -l | entr node tests/run.js; echo 'done'",
     "play:watch": "ag -l | entr node hello.js; echo 'done'"
   }
 }
