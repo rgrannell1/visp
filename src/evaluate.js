@@ -158,9 +158,11 @@ coreEnv.eval = calleable.primitive((expr, env) => {
   if (expr && expr.hasOwnProperty('isFailure') && expr.isFailure !== true) {
     return coreEnv.eval.underlying(expr.data, env)
   } else if (expr.type === 'program') {
+    let result
     for (const subExpr of expr.expressions) {
-      coreEnv.eval.underlying(subExpr, env)
+      result = coreEnv.eval.underlying(subExpr, env)
     }
+    return result
   } else if (expr.type === 'call') {
     return callCombiner(expr, env)
   } else if (expr.type === 'symbol') {
