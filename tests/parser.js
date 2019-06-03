@@ -8,7 +8,15 @@ const visp = require('../src/visp')
 
 const runParser = Parser.run
 
-suite('visp.parse.number', () => {
+const tests = {}
+
+tests['visp.parse.number'] = {}
+tests['visp.parse.number'].docs = `
+## visp.parse.number
+
+Test that visp.parse.number
+`
+tests['visp.parse.number'].run = suite('visp.parse.number', () => {
   demand.error(() => runParser(visp.parse.number, '.10'), SyntaxError)
   demand.error(() => runParser(visp.parse.number, '10.10.10'), SyntaxError)
 
@@ -25,7 +33,13 @@ suite('visp.parse.number', () => {
   }
 })
 
-suite('visp.parse.boolean', () => {
+tests['visp.parse.boolean'] = {}
+tests['visp.parse.boolean'].docs = `
+## visp.parse.boolean
+
+Test that visp.parse.boolean
+`
+tests['visp.parse.boolean'].run = suite('visp.parse.boolean', () => {
   demand.error(() => runParser(visp.parse.boolean, '#nope'), SyntaxError)
 
   demand.cases('boolean', [
@@ -34,7 +48,13 @@ suite('visp.parse.boolean', () => {
   ])
 })
 
-suite('visp.parse.string', () => {
+tests['visp.parse.string'] = {}
+tests['visp.parse.string'].docs = `
+## visp.parse.string
+
+Test that visp.parse.string
+`
+tests['visp.parse.string'].run = suite('visp.parse.string', () => {
   demand.error(() => runParser(visp.parse.string, '"unterminated '), SyntaxError)
 
   demand.cases('string', [
@@ -43,7 +63,13 @@ suite('visp.parse.string', () => {
   ])
 })
 
-suite('visp.parse.symbol', () => {
+tests['visp.parse.symbol'] = {}
+tests['visp.parse.symbol'].docs = `
+## visp.parse.symbol
+
+Test that visp.parse.symbol
+`
+tests['visp.parse.symbol'].run = suite('visp.parse.symbol', () => {
   demand.error(() => runParser(visp.parse.symbol, '#'), SyntaxError)
 
   demand.cases('symbol', [
@@ -54,7 +80,13 @@ suite('visp.parse.symbol', () => {
   ])
 })
 
-suite('visp.parse.keyword', () => {
+tests['visp.parse.keyword'] = {}
+tests['visp.parse.keyword'].docs = `
+## visp.parse.keyword
+
+Test that visp.parse.keyword
+`
+tests['visp.parse.keyword'].run = suite('visp.parse.keyword', () => {
   demand.error(() => runParser(visp.parse.keyword, '#'), SyntaxError)
 
   demand.cases('keyword', [
@@ -63,7 +95,13 @@ suite('visp.parse.keyword', () => {
   ])
 })
 
-suite('visp.parse.call', () => {
+tests['visp.parse.call'] = {}
+tests['visp.parse.call'].docs = `
+## visp.parse.call
+
+Test that visp.parse.call
+`
+tests['visp.parse.call'].run = suite('visp.parse.call', () => {
   const pairs = [
     [
       'some-fn!()',
@@ -82,7 +120,13 @@ suite('visp.parse.call', () => {
   demand.cases('call', pairs)
 })
 
-suite('visp.parse.list', () => {
+tests['visp.parse.list'] = {}
+tests['visp.parse.list'].docs = `
+## visp.parse.list
+
+Test that visp.parse.list
+`
+tests['visp.parse.list'].run = suite('visp.parse.list', () => {
   const pairs = [
     [
       '()',
@@ -109,7 +153,13 @@ suite('visp.parse.list', () => {
   }
 })
 
-suite('visp.parse.comment', () => {
+tests['visp.parse.comment'] = {}
+tests['visp.parse.comment'].docs = `
+## visp.parse.comment
+
+Test that visp.parse.comment
+`
+tests['visp.parse.comment'].run = suite('visp.parse.comment', () => {
   const pairs = [
     [
       '; test comment\n',
@@ -122,7 +172,13 @@ suite('visp.parse.comment', () => {
   }
 })
 
-suite('visp.parse.inert', () => {
+tests['visp.parse.inert'] = {}
+tests['visp.parse.inert'].docs = `
+## visp.parse.inert
+
+Test that visp.parse.inert
+`
+tests['visp.parse.inert'].run = suite('visp.parse.inert', () => {
   const pairs = [
     [
       '#inert',
@@ -135,10 +191,24 @@ suite('visp.parse.inert', () => {
   }
 })
 
-suite('visp.parse.infix', () => {
+tests['visp.parse.infix'] = {}
+tests['visp.parse.infix'].docs = `
+## visp.parse.infix
+
+Test that visp.parse.infix
+`
+tests['visp.parse.infix'].run = suite('visp.parse.infix', () => {
 
 })
 
-suite('visp.parse.expression', () => {
+tests['visp.parse.expression'] = {}
+tests['visp.parse.expression'].docs = `
+## visp.parse.expression
+
+Test that visp.parse.expression
+`
+tests['visp.parse.expression'].run = suite('visp.parse.expression', () => {
 
 })
+
+module.exports = tests

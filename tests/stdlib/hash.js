@@ -3,7 +3,15 @@ const {expect} = require('chai')
 const visp = require('../../src/visp')
 const {demand, suite, evaluate} = require('../utils')
 
-suite('hash', () => {
+const tests = {}
+
+tests.hash = {}
+tests.hash.docs = `
+## hash
+
+Test that hash
+`
+tests.hash.run = suite('hash', () => {
   const parts = [
     [
       `
@@ -28,7 +36,13 @@ suite('hash', () => {
   }
 })
 
-suite('hash-keys', () => {
+tests['hash-keys'] = {}
+tests['hash-keys'].docs = `
+## hash-keys
+
+Test that hash-keys
+`
+tests['hash-keys'].run = suite('hash-keys', () => {
   const parts = [
     [
       `
@@ -45,8 +59,13 @@ suite('hash-keys', () => {
     expect(evaluate(program)).to.deep.equal(result)
   }
 })
+tests['hash-values'] = {}
+tests['hash-values'].docs = `
+## hash-values
 
-suite('hash-values', () => {
+Test that hash-values
+`
+tests['hash-values'].run = suite('hash-values', () => {
   const parts = [
     [
       `
@@ -64,7 +83,13 @@ suite('hash-values', () => {
   }
 })
 
-suite('hash-size', () => {
+tests['hash-size'] = {}
+tests['hash-size'].docs = `
+## hash-size
+
+Test that hash-size
+`
+tests['hash-size'].run = suite('hash-size', () => {
   const parts = [
     [
       `
@@ -82,7 +107,13 @@ suite('hash-size', () => {
   }
 })
 
-suite('hash-entries', () => {
+tests['hash-entries'] = {}
+tests['hash-entries'].docs = `
+## hash-entries
+
+Test that hash-entries
+`
+tests['hash-entries'].run = suite('hash-entries', () => {
   const parts = [
     [
       `
@@ -99,3 +130,5 @@ suite('hash-entries', () => {
     expect(evaluate(program)).to.deep.equal(result)
   }
 })
+
+module.exports = tests
