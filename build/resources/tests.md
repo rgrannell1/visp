@@ -1,0 +1,6 @@
+
+# tests
+
+{{#tests}}
+  {{documentation}}
+{{/tests}}

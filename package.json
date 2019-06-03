@@ -8,7 +8,8 @@
   "dependencies": {
     "chai": "4.2.0",
     "chalk": "2.4.2",
-    "longjohn": "0.2.12"
+    "longjohn": "0.2.12",
+    "mustache": "^3.0.1"
   },
   "devDependencies": {
     "@rgrannell/index": "8.2.0",
