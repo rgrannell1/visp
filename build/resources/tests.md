@@ -1,6 +1,8 @@
 
 # tests
 
-{{#tests}}
-  {{documentation}}
-{{/tests}}
+{{#modules}}
+  {{#tests}}
+    {{documentation}}
+  {{/tests}}
+{{/modules}}

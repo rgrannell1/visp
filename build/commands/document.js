@@ -5,6 +5,7 @@ const fs = require('fs').promises
 
 const constants = {
   paths: {
+    testsDocs: path.join(__dirname, '../../documentation/tests.md'),
     testsTemplate: path.join(__dirname, '../resources/tests.md')
   }
 }
@@ -26,16 +27,20 @@ command.task = async args => {
   const tests = require('../../tests/index')
 
   const view = {}
-  view.tests = Object.values(tests).map(moduleData => {
-    return Object.values(moduleData).map(testData => {
+  view.modules = Object.values(tests).map(moduleData => {
+    const moduleTests = Object.values(moduleData).map(testData => {
       return { documentation: testData.docs }
     })
+
+    return {
+      tests: moduleTests
+    }
   })
 
-  const xx = (await fs.readFile(constants.paths.testsTemplate)).toString()
-  const rendered = Mustache.render(xx, view)
+  const content = (await fs.readFile(constants.paths.testsTemplate)).toString()
+  const rendered = Mustache.render(content, view)
 
-  console.log(rendered)
+  await fs.writeFile(constants.paths.testsDocs, rendered)
 }
 
 module.exports = command
