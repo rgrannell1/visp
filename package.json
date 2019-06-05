@@ -15,11 +15,19 @@
     "@rgrannell/index": "8.2.0",
     "@rgrannell/markdown": "8.2.0",
     "@rgrannell/mustache": "8.2.0",
-    "@rgrannell/pulp": "8.2.0"
+    "@rgrannell/pulp": "8.2.0",
+    "nyc": "^14.1.1"
   },
   "scripts": {
-    "test": "node pulpfile.js test",
+    "test": "node_modules/.bin/nyc node pulpfile.js test",
     "test:watch": "ag -l | entr node pulpfile.js test; echo 'done'",
     "play:watch": "ag -l | entr node hello.js; echo 'done'"
+  },
+  "nyc": {
+    "exclude": [
+      "build/**",
+      "pulpfile.js",
+      "**/tests"
+    ]
   }
 }

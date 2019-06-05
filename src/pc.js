@@ -19,6 +19,12 @@ Parser.failure = data => {
   return self
 }
 
+Parser.failure.docs = `
+## Parser.failure
+
+Construct a failed parse result.
+`
+
 Parser.success = (data, rest) => {
   if (typeof data === 'undefined') {
     throw new TypeError('Parser.success recieved undefined parse-data')
@@ -32,6 +38,12 @@ Parser.success = (data, rest) => {
 
   return self
 }
+
+Parser.success = `
+## Parser.success
+
+Construct a successful parse result.
+`
 
 Parser.onSuccess = (fn, parser) => {
   const self = input => {
@@ -47,6 +59,10 @@ Parser.onSuccess = (fn, parser) => {
 
   return self
 }
+
+Parser.onSuccess.docs = `
+## Parser.onSuccess
+`
 
 Parser.all = parsers => {
   const self = input => {
@@ -79,11 +95,20 @@ Parser.all = parsers => {
   return self
 }
 
+Parser.all.docs = `
+## Parser.all
+`
+
 Parser.extract = (junk, parser) => {
   return Parser.onSuccess(([junk0, data, junk1]) => {
     return data
   }, Parser.all([junk, parser, junk]))
 }
+
+Parser.extract.docs = `
+## Parser.extract
+
+`
 
 Parser.oneOf = parsers => {
   const self = input => {
@@ -115,6 +140,11 @@ Parser.oneOf = parsers => {
   return self
 }
 
+Parser.oneOf.docs = `
+## Parser.oneOf
+
+`
+
 Parser.character = char => {
   return input => {
     if (typeof input === 'undefined') {
@@ -137,6 +167,12 @@ Parser.character = char => {
   }
 }
 
+Parser.character.docs = `
+## Parser.character
+
+Receives a character. Returns a parser that attempts to parse
+`
+
 Parser.optional = parser => {
   return input => {
     const result = parser(input)
@@ -148,6 +184,11 @@ Parser.optional = parser => {
     }
   }
 }
+
+Parser.optional.docs = `
+## Parser.optional
+
+`
 
 Parser.many1 = parser => {
   const self = input => {
@@ -187,6 +228,11 @@ Parser.many1 = parser => {
   return self
 }
 
+Parser.many1.docs = `
+## Parser.many1
+
+`
+
 Parser.report = failure => {
   let message = chalk.blue('-- PARSING ERROR -----------------------------------------\n\n')
 
@@ -197,6 +243,11 @@ Parser.report = failure => {
 
   console.log(message)
 }
+
+Parser.report.docs = `
+## Parser.report
+
+`
 
 Parser.run = (parser, input) => {
   const result = parser(input)
@@ -209,5 +260,10 @@ Parser.run = (parser, input) => {
     return result
   }
 }
+
+Parser.run.docs = `
+## Parser.run
+
+`
 
 module.exports = {Parser, pc}

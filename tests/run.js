@@ -1,4 +1,5 @@
 
+const chalk = require('chalk')
 const tests = require('./index')
 
 for (const test of tests) {
