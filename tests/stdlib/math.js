@@ -43,4 +43,23 @@ tests.product.run = suite('product  ', () => {
   }
 })
 
+tests.clamp = {}
+tests.clamp.docs = `
+## clamp
+
+Test that clamp
+`
+tests.clamp.run = suite('clamp  ', () => {
+  const parts = [
+     ['clamp(0, 0, 0)', 0],
+     ['clamp(0, 1, 0)', 0],
+     ['clamp(0, 1, 1)', 1],
+     ['clamp(0, -1, 1)', 0]
+  ]
+
+  for (const [program, result] of parts) {
+    expect(evaluate(program)).to.deep.equal(result)
+  }
+})
+
 module.exports = tests

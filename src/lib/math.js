@@ -32,4 +32,14 @@ lib['product*'] = calleable.applicative((...nums) => {
   return defs.product(nums)
 })
 
+lib['clamp'] = calleable.applicative((min, num, max) => {
+  if (num > max) {
+    return max
+  } else if (num < min) {
+    return min
+  } else {
+    return num
+  }
+})
+
 module.exports = lib
