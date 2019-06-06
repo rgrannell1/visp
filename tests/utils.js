@@ -82,6 +82,7 @@ demand.data = (thunk, data) => {
     console.log(JSON.stringify(actual, null, 2))
     expect(actual).to.deep.equal(data)
   } catch (err) {
+    debugger
     console.log('EXPECTED:')
     console.log(JSON.stringify(err.expected, null, 2))
     throw new Error('test case failed.')

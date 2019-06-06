@@ -24,4 +24,39 @@ tests.set.run = suite('set', () => {
   }
 })
 
+tests['set-equal'] = {}
+tests['set-equal'].docs = `
+## set-equal
+
+Test that set-equal
+`
+tests['set-equal'].run = suite('set', () => {
+  const parts = [
+     ['set-equal(set*() set*())', true],
+     ['set-equal(set*(0) set*())', false],
+     ['set-equal(set*(0) set*(1))', false],
+     ['set-equal(set*(0) set*(0))', true],
+  ]
+
+  for (const [program, result] of parts) {
+    expect(evaluate(program)).to.deep.equal(result)
+  }
+})
+
+tests['set-has'] = {}
+tests['set-has'].docs = `
+## set-has
+
+Test that set-has
+`
+tests['set-has'].run = suite('set', () => {
+  const parts = [
+     ['set-has(set(()) 1)', false],
+     ['set-has(set((1)) 1)', true],
+  ]
+
+  for (const [program, result] of parts) {
+    expect(evaluate(program)).to.deep.equal(result)
+  }
+})
 module.exports = tests

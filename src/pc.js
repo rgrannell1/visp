@@ -39,7 +39,7 @@ Parser.success = (data, rest) => {
   return self
 }
 
-Parser.success = `
+Parser.success.docs = `
 ## Parser.success
 
 Construct a successful parse result.

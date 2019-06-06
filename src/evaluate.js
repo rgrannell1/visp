@@ -48,7 +48,12 @@ const callCombiner = (call, dynenv) => {
   if (calleable.type === 'primitive') {
     return calleable.underlying(...call.arguments, dynenv)
   } else if (calleable.type === 'applicative') {
+    try {
+
     return calleable.underlying(...evalArgs(call.arguments, dynenv))
+  } catch (err) {
+    debugger
+  }
   } else if (calleable.type === 'operative') {
     throw new Error('operative not implemented')
   } else {

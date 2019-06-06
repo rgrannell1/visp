@@ -22,7 +22,7 @@ ast.boolean = data => {
   }
 }
 
-ast.inert = data => {
+ast.inert = () => {
   return {
     type: 'inert',
     value: '#inert'
@@ -32,7 +32,7 @@ ast.inert = data => {
 ast.string = data => {
   return {
     type: 'string',
-    value:data.slice(1, -1)
+    value: data.slice(1, -1)
   }
 }
 

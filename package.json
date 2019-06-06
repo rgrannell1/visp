@@ -19,7 +19,9 @@
     "nyc": "^14.1.1"
   },
   "scripts": {
-    "test": "node_modules/.bin/nyc node pulpfile.js test",
+    "test": "node pulpfile.js test",
+    "test:cover": "node_modules/.bin/nyc node pulpfile.js test",
+    "test:debug": "node inspect pulpfile.js test",
     "test:watch": "ag -l | entr node pulpfile.js test; echo 'done'",
     "play:watch": "ag -l | entr node hello.js; echo 'done'",
     "show-coverage": "chromium-browser coverage/index.html"

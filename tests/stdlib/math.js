@@ -13,8 +13,8 @@ Test that sum
 `
 tests.sum.run = suite('sum', () => {
   const parts = [
-     [`sum*(())`, 0],
-     [`sum*((1 2))`, 3],
+     [`sum(())`, 0],
+     [`sum((1 2))`, 3],
      [`sum*()`, 0],
      [`sum*(1 2)`, 3]
   ]
@@ -32,8 +32,8 @@ Test that product
 `
 tests.product.run = suite('product  ', () => {
   const parts = [
-     [`product*(())`, 1],
-     [`product*((2 3))`, 6],
+     [`product(())`, 1],
+     [`product((2 3))`, 6],
      [`product*()`, 1],
      [`product*(2 3)`, 6]
   ]

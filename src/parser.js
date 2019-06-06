@@ -61,6 +61,7 @@ parser.number = function number(input) {
 
   if (matches) {
     let match = matches[0]
+
     return Parser.success(ast.number(match), input.slice(match.length))
   } else {
     return Parser.failure({
