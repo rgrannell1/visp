@@ -97,7 +97,7 @@ demand.cases = (fnName, pairs) => {
 
 utils.suite = (description, thunk) => {
   return () => {
-    const message = `AST component: ${description}\n`
+    const message = `component: ${description}\n`
     console.log(chalk.blue(message))
     thunk()
   }
