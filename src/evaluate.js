@@ -9,6 +9,7 @@ const lib = {
   set: require('./lib/set'),
   list: require('./lib/list'),
   lens: require('./lib/lens'),
+  imports: require('./lib/imports'),
   symbol: require('./lib/symbol'),
   math: require('./lib/math'),
   functionals: require('./lib/functionals')
