@@ -29,20 +29,20 @@ It looks like this.
 
 ```js
 
-$define!(sym symbol("some js symbol"))
-$define!(val hash*(
+sym <- symbol("some js symbol")
+val <- hash*(
   ("a" 1)
   ("b" 2)
   (sym hash*(
     ("c" 3)
-    ("d" 4)))))
+    ("d" 4))))
 
-$define!(accessor at-key(sym))
+accessor <- at-key(sym)
 
-$define!(test $lambda((x y)
+test <- $fn((x y)
   show("hello!")
   $define!(z, 3)
-  sum*(x y z)))
+  sum*(x y z))
 
 show(test(1 2))
 
