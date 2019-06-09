@@ -30,7 +30,7 @@ tests['set-equal'].docs = `
 
 Test that set-equal
 `
-tests['set-equal'].run = suite('set', () => {
+tests['set-equal'].run = suite('set-equal', () => {
   const parts = [
      ['set-equal(set*() set*())', true],
      ['set-equal(set*(0) set*())', false],
@@ -49,7 +49,7 @@ tests['set-has'].docs = `
 
 Test that set-has
 `
-tests['set-has'].run = suite('set', () => {
+tests['set-has'].run = suite('set-has', () => {
   const parts = [
      ['set-has(set(()) 1)', false],
      ['set-has(set((1)) 1)', true],

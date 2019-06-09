@@ -50,7 +50,6 @@ const callCombiner = (call, dynenv) => {
     return calleable.underlying(...call.arguments, dynenv)
   } else if (calleable.type === 'applicative') {
     try {
-
     return calleable.underlying(...evalArgs(call.arguments, dynenv))
   } catch (err) {
     debugger

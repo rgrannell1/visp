@@ -27,7 +27,10 @@
     "show-coverage": "chromium-browser coverage/index.html"
   },
   "nyc": {
-    "reporter": ["html", "text"],
+    "reporter": [
+      "html",
+      "text"
+    ],
     "exclude": [
       "build/**",
       "pulpfile.js",

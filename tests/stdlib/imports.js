@@ -9,7 +9,7 @@ tests['require'] = {}
 tests['require'].docs = `
 test require
 `
-tests['require'].run = suite('hash', () => {
+tests['require'].run = suite('require', () => {
   expect(require('fs')).to.be.equal(evaluate('require("fs")'))
 })
 

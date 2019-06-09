@@ -208,7 +208,22 @@ tests['visp.parse.expression'].docs = `
 Test that visp.parse.expression
 `
 tests['visp.parse.expression'].run = suite('visp.parse.expression', () => {
+  const pairs = [
+    [
+      'x <- $pipe(require("fs"))',
+      utils.ast.call('<-', [
+        utils.ast.symbol('x'),
+        utils.ast.call('$pipe', [
+          utils.ast.call('require', [utils.ast.string('fs')])
+        ])
+      ])
+    ]
+  ]
 
+  for (const [str, value] of pairs) {
+    debugger
+    demand.data(() => runParser(visp.parse.expression, str), [value])
+  }
 })
 
 module.exports = tests
